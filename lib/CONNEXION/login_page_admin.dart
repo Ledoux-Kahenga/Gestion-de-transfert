@@ -45,7 +45,7 @@ body: Container(
 
         RichText(
           text: TextSpan(
-            text: 'Admin ',
+            text: 'Admins ',
             style: TextStyle(
               fontSize: 34, // Taille de la police
               fontWeight: FontWeight.bold, // En gras
