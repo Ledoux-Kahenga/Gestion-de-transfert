@@ -8,9 +8,8 @@ class LoginPage extends StatelessWidget {
       
 body: Container(
   decoration: BoxDecoration(
-    color: Colors.amber,
     image: DecorationImage(
-      image: AssetImage('assets/images/bg.png'), // Remplacez par le chemin de votre image
+      image: AssetImage('assets/images/bg1.jpg'), // Remplacez par le chemin de votre image
       fit: BoxFit.cover, // Ajuste la façon dont l'image couvre le widget
     ),
   ),
@@ -46,7 +45,7 @@ body: Container(
 
         RichText(
           text: TextSpan(
-            text: 'Admin ',
+            text: 'Admins ',
             style: TextStyle(
               fontSize: 34, // Taille de la police
               fontWeight: FontWeight.bold, // En gras
