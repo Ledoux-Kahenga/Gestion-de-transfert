@@ -9,22 +9,22 @@ class LoginPage extends StatelessWidget {
 body: Container(
   decoration: BoxDecoration(
     image: DecorationImage(
-      image: AssetImage('assets/images/44.jpg'), // Remplacez par le chemin de votre image
+      image: AssetImage('assets/images/bg1.jpg'), // Remplacez par le chemin de votre image
       fit: BoxFit.cover, // Ajuste la façon dont l'image couvre le widget
     ),
   ),
   child: Center(
     child: Column(
       
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjust this to push the text to the top
+      mainAxisAlignment: MainAxisAlignment.center, // Adjust this to push the text to the top
       children: <Widget>[
-        Text(
-          'Admin'),
+        SizedBox(height: 50),
+
         RichText(
           text: TextSpan(
             text: 'AGENCE ',
             style: TextStyle(
-              fontSize: 24, // Taille de la police
+              fontSize: 30, // Taille de la police
               fontWeight: FontWeight.bold, // En gras
               color: Colors.black, // Couleur du texte "AGENCE"
             ),
@@ -32,7 +32,7 @@ body: Container(
               TextSpan(
                 text: 'BAUDOIUN',
                 style: TextStyle(
-                  fontSize: 24, // Taille de la police
+                  fontSize: 30, // Taille de la police
                   fontWeight: FontWeight.bold, // En gras
                   color: Colors.blue, // Couleur du texte "BAUDOIUN"
                 ),
@@ -40,6 +40,21 @@ body: Container(
             ],
           ),
         ),
+
+        SizedBox(height: 60), 
+
+        RichText(
+          text: TextSpan(
+            text: 'Admin ',
+            style: TextStyle(
+              fontSize: 34, // Taille de la police
+              fontWeight: FontWeight.bold, // En gras
+              color: Colors.white, // Couleur du texte "AGENCE"
+            ),
+          ),
+           ),
+           SizedBox(height: 20), 
+
         // Other widgets like TextFields and the login button go here
          Container(
         width: 300, // Largeur du Container
@@ -73,7 +88,7 @@ body: Container(
         child: TextField(
           decoration: InputDecoration(
             labelText: 'Mot de passe',
-            labelStyle: TextStyle(color: Colors.black),
+            labelStyle: TextStyle(color: Colors.blue),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.grey),
             ),
@@ -98,6 +113,7 @@ body: Container(
         ),
         child: Text('Se connecter'),
       ),
+      SizedBox(height: 200)
       ],
     ),
   ),
