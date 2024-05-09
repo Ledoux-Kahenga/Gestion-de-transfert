@@ -30,7 +30,7 @@ body: Container(
             ),
             children: <TextSpan>[
               TextSpan(
-                text: 'BAUDOIUN',
+                text: 'BAUDOUINSSSS',
                 style: TextStyle(
                   fontSize: 30, // Taille de la police
                   fontWeight: FontWeight.bold, // En gras
