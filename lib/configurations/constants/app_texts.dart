@@ -1,0 +1,57 @@
+class AppTexts {
+  AppTexts._();
+  static const appName = "AGENCE BAUDOUIN";
+  static const ok = "OK";
+  static const id = "ID";
+  static const title = "Title";
+  static const description = "Description";
+  static const date = "Date";
+  static const agence = "Agences";
+  static const agent = "Agents";
+  static const lacolombe = "La colombe";
+  static const superAdmin = "Super Admin";
+  static const menuHome = "Home";
+  static const menuAllPost = "All Post";
+  static const menuAddPost = "Add Post";
+  static const logout = "Logout";
+  static const allPostLoadingMessage = "Loading all posts. Please wait..";
+  static const noPostAvailable = "No post available.";
+  static const postFilterHints = "Type to filter post";
+  static const wait = "Wait!";
+  static const dateNotSelectedErrorMessage = "You did not select any date. Please select a date and try again.";
+  static const maxValueNotEnteredErrorMessage = "ou did not entered any max value. Please eneter a max value and try again.";
+  static const loadingPostMessage = "Loading posts. Please wait...";
+  static const selectDate = "Select Date";
+  static const max = "Max";
+  static const getPostByDate = "Get Posts By Date";
+  static const deletePost = "Delete Post!";
+  static const deleteConfirmationMessage = "Are you sure you want to delete this post";
+  static const delete =  "Delete";
+  static const cancel = "Cancel";
+  static const deletePostMessage = "Deleting post. Please wait...";
+  static const save = "Save";
+  static const update = "Update";
+  static const post = "Post";
+  static const savingPostWait = "Saving post. Please wait...";
+  static const updatingPostWait = "Updaing post. Please wait...";
+  static const titleErrorMessage = "Enter a title and min character is 20";
+  static const descriptionErrorMessage = 'Enter a description and min character is 30';
+  static const coverImageUrlErrorMessage = "Enter a cover image url and min character is 15";
+  static const postMobileUrlErrorMessage = "Enter a post mobile url and min character is 15";
+  static const active = "Active";
+  static const activeStatusErrorMessage = "Enter active status";
+  static const count = "Count";
+  static const countErrorMessage = "Enter vote count";
+  static const adminDashboard = "Admin Dashboard";
+  static const splashTitle = "Votre agence de confiance\n en R.D.C";
+  static const pleaseWait = "Please wait....";
+  static const invalidCredential = "Invalid Credential";
+  static const login = "Login";
+  static const userName = "Username";
+  static const usernameErrorMessage = "Enter the username";
+  static const password = "Password";
+  static const passwordErrorMessage = "Enter the password";
+
+   static const defaultPadding = 16.0;
+
+}

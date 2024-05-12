@@ -1,8 +1,15 @@
+import 'package:agence_transfert/controllers/MenuAppController.dart';
 import 'package:flutter/material.dart';
-import 'CONNEXION/login_page_admin.dart'; // Assurez-vous d'importer le fichier login_page.dart
+import 'package:provider/provider.dart';
+import 'login/admin/login_admin.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => MenuAppController(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,8 +22,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Roboto',
         primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Color(0xFFf8fcff)
       ),
-      home: MyHomePage(title: 'Page d\'accueil'),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (context) => MenuAppController(),
+          ),
+        ],
+        child: LoginAdmin(),
+      ),
     );
   }
 }
@@ -28,8 +43,6 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LoginPage()
-    );
+    return Scaffold(body: LoginAdmin());
   }
 }
