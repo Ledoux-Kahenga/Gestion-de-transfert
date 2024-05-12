@@ -50,7 +50,10 @@ class ProfileCard extends StatelessWidget {
           Padding(
             padding:
                 EdgeInsets.symmetric(horizontal: AppTexts.defaultPadding / 2),
-            child: Text("Angelina Jolie"),
+            child: Text(
+              "Angelina Jolie",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           Icon(Icons.keyboard_arrow_down),
         ],
