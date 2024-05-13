@@ -16,7 +16,6 @@ class DashboardScreen extends StatelessWidget {
             body: Column(
               children: [
                 Container(
-                  alignment: Alignment.topRight,
                   child: Header()), // Placez Header() au début de la Column
                 SizedBox(height: defaultPadding),
                 Text('bonjour'),
