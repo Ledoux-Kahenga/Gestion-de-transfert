@@ -1,3 +1,4 @@
+import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Roboto',
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Color(0xFFf8fcff)
+        scaffoldBackgroundColor: AppColors.background
       ),
       home: MultiProvider(
         providers: [

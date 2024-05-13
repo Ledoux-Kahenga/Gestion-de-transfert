@@ -14,7 +14,7 @@ class LoginAdmin extends StatelessWidget {
           height: 400,
           child: Card(
             surfaceTintColor: Colors.transparent,
-            color: AppColors.customColor,
+            color: AppColors.background,
             shadowColor: AppColors.loginShadowColor,
             elevation: 8,
             clipBehavior: Clip.antiAlias,

@@ -10,17 +10,17 @@ class DashboardScreen extends StatelessWidget {
         // Calculer la hauteur en fonction de la hauteur totale de l'écran
         double screenHeight = constraints.maxHeight;
         double dashboardHeight = screenHeight * (5 / 6); // 5/6 de la hauteur de l'écran
-
         return Container(
+         
           child: Scaffold(
             body: Column(
               children: [
                 Container(
                   child: Header()), // Placez Header() au début de la Column
                 SizedBox(height: defaultPadding),
-                Text('bonjour'),
+                // Text('bonjour'),
                 SizedBox(height: defaultPadding),
-                Text('bonjour'),
+                // Text('bonjour'),
                 // Ajoutez d'autres widgets ici
               ],
             ),

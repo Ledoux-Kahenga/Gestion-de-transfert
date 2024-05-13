@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:agence_transfert/screens/main/dashboard_screen.dart';
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class SideMenu extends StatefulWidget {
@@ -28,114 +29,108 @@ class _SideMenuState extends State<SideMenu> {
   Widget build(BuildContext context) {
     final menuAppController =
         Provider.of<MenuAppController>(context, listen: false);
-    return Drawer(
-      backgroundColor: Colors.white70,
-      child: ListView(
-        children: [
-          DrawerHeader(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    AppTexts.appName,
+    return Container(
+      color: AppColors.backgroundWhite,
+      child: Drawer(
+        surfaceTintColor: Colors.white,
+        backgroundColor: Colors.white,
+        child: Center(
+          // Ajout de Center pour centrer le contenu du Drawer
+          child: ListView(
+            children: [
+              DrawerHeader(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "assets/images/logo.png",
+                        width: 200, // Spécifiez la largeur souhaitée
+                        // Flutter ajustera la hauteur pour maintenir les proportions
+                      ),
+                      Text(
+                        AppTexts.appName,
+                        style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                // padding: EdgeInsets.only(left: 20),
+                color: _selectedItemIndex == 0
+                    ? AppColors.background
+                    : Colors.transparent,
+                child: ListTile(
+                  leading: SvgPicture.asset('assets/icons/menu_dashboard.svg'),
+                  title: Text(
+                    AppTexts.agence,
                     style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold
+                      fontSize: 18,
+                      color: _selectedItemIndex == 0
+                          ? AppColors.textColorBlack
+                          : Colors.black.withOpacity(0.6),
                     ),
                   ),
-                  Text(
-                    AppTexts.lacolombe,
+                  onTap: () {
+                    setState(() {
+                      _selectedItemIndex = 0;
+                      widget.onItemSelected(DashboardScreen());
+                    });
+                  },
+                  selected: _selectedItemIndex == 0,
+                ),
+              ),
+              Container(
+                color: _selectedItemIndex == 1
+                    ? AppColors.background
+                    : const Color.fromARGB(0, 77, 14, 14),
+                child: ListTile(
+                  leading: SvgPicture.asset('assets/icons/menu_profile.svg'),
+                  title: Text(
+                    AppTexts.agent,
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400
+                      fontSize: 18,
+                      color: _selectedItemIndex == 1
+                          ? AppColors.textColorBlack
+                          : Colors.black.withOpacity(0.6),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          add16VerticalSpace(),
-          Container(
-            color: _selectedItemIndex == 0
-                ? AppColors.customColor
-                : Colors.transparent,
-            child: ListTile(
-              title: Text(
-                AppTexts.agence,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: _selectedItemIndex == 0
-                      ? AppColors.themeColor
-                      : Colors.black.withOpacity(0.6),
-                  // color: Colors.black.withOpacity(0.6),
-                  // add16HorizontalSpace(),
+                  onTap: () {
+                    setState(() {
+                      _selectedItemIndex = 1;
+                      widget.onItemSelected(GestionAgencesPage());
+                    });
+                  },
+                  selected: _selectedItemIndex == 1,
                 ),
               ),
-              onTap: () {
-                // menuAppController.controlMenu();
-                setState(() {
-                  _selectedItemIndex = 0;
-                  widget.onItemSelected(DashboardScreen());
-                });
-              },
-              selected: _selectedItemIndex == 0,
-            ),
-          ),
-          Container(
-            color: _selectedItemIndex == 1
-                ? AppColors.customColor
-                : const Color.fromARGB(0, 77, 14, 14),
-            child: ListTile(
-              title: Text(
-                AppTexts.agent,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: _selectedItemIndex == 1
-                      ? AppColors.themeColor
-                      : Colors.black.withOpacity(0.6),
+              Container(
+                color: _selectedItemIndex == 2
+                    ? AppColors.background
+                    : const Color.fromARGB(0, 77, 14, 14),
+                child: ListTile(
+                  title: Text(
+                    AppTexts.logout,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: _selectedItemIndex == 2
+                          ? AppColors.textColorBlack
+                          : Colors.black.withOpacity(0.6),
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _selectedItemIndex = 2;
+                      widget.onItemSelected(GestionAgencesPage());
+                    });
+                  },
+                  selected: _selectedItemIndex == 2,
                 ),
               ),
-              onTap: () {
-                // menuAppController.controlMenu();
-                setState(() {
-                  _selectedItemIndex = 1;
-                  widget.onItemSelected(
-                      GestionAgencesPage()); // Navigation vers la page Transactions
-                });
-              },
-              selected: _selectedItemIndex == 1,
-            ),
+            ],
           ),
-
-          Container(
-            color: _selectedItemIndex == 2
-                ? AppColors.customColor
-                : const Color.fromARGB(0, 77, 14, 14),
-            child: ListTile(
-              title: Text(
-                AppTexts.logout,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: _selectedItemIndex == 2
-                      ? AppColors.themeColor
-                      : Colors.black.withOpacity(0.6),
-                ),
-              ),
-              onTap: () {
-                // menuAppController.controlMenu();
-                setState(() {
-                  _selectedItemIndex = 2;
-                  widget.onItemSelected(
-                      GestionAgencesPage()); // Navigation vers la page Transactions
-                });
-              },
-              selected: _selectedItemIndex == 2,
-            ),
-          ),
-
-          // Ajoutez d'autres éléments de menu ici
-        ],
+        ),
       ),
     );
   }

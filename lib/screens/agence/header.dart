@@ -1,3 +1,4 @@
+import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,9 +9,19 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment.topRight,
+      // alignment: Alignment.topRight,
       child: Row(
         children: [
+           Padding(
+             padding: const EdgeInsets.all(8.0),
+             child: Text(
+                "AGENCES",
+                style: TextStyle(color: AppColors.textColorBlack,
+                fontSize: 24,
+                fontWeight: FontWeight.w700),
+              ),
+           ),
+          Spacer(), // Ajoutez un Spacer pour pousser les widgets vers la droite
           Padding(
             padding: EdgeInsets.all(8), // Ajoutez de la marge sur tous les côtés de SearchField
             child: SearchField(),
@@ -31,15 +42,15 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: AppTexts.defaultPadding),
+      // margin: EdgeInsets.only(left: AppTexts.defaultPadding),
       padding: EdgeInsets.symmetric(
         horizontal: AppTexts.defaultPadding,
         vertical: AppTexts.defaultPadding / 2,
       ),
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        border: Border.all(color: Colors.white10),
+        color: Colors.white,
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+        border: Border.all(color: Colors.black12),
       ),
       child: Row(
         children: [
@@ -48,11 +59,10 @@ class ProfileCard extends StatelessWidget {
             height: 38,
           ),
           Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: AppTexts.defaultPadding / 2),
+            padding: EdgeInsets.symmetric(horizontal: AppTexts.defaultPadding / 2),
             child: Text(
               "Angelina Jolie",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.textColorBlack),
             ),
           ),
           Icon(Icons.keyboard_arrow_down),
@@ -68,26 +78,35 @@ class SearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 420, // Spécifiez la largeur du Container à 320 pixels
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: "Search",
-          fillColor: Colors.black,
-          filled: true,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-          ),
-          suffixIcon: InkWell(
-            onTap: () {},
-            child: Container(
-              padding: EdgeInsets.all(AppTexts.defaultPadding * 0.75),
-              margin: EdgeInsets.symmetric(horizontal: AppTexts.defaultPadding / 2),
-              decoration: BoxDecoration(
-                color: Colors.amber,
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
+      width: 300, // Spécifiez la largeur du Container à 320 pixels
+      child: Card(
+        shadowColor: AppColors.loginShadowColor,
+        elevation: 2,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6), // Augmentez le rayon pour un effet plus prononcé
+        ),
+        child: TextField(
+          decoration: InputDecoration(
+            hintText: "Recherche",
+            fillColor: Colors.white,
+            filled: true,
+            border: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: const BorderRadius.all(Radius.circular(6)), // Assurez-vous que le rayon est le même ici
+            ),
+            suffixIcon: InkWell(
+              onTap: () {},
+              child: Container(
+                padding: EdgeInsets.all(AppTexts.defaultPadding * 0.75),
+                margin: EdgeInsets.symmetric(
+                    horizontal: AppTexts.defaultPadding / 2),
+                decoration: BoxDecoration(
+                  color: AppColors.textColorBlack,
+                  borderRadius: const BorderRadius.all(Radius.circular(4)), // Assurez-vous que le rayon est le même ici
+                ),
+                child: SvgPicture.asset("assets/icons/Search.svg"),
               ),
-              child: SvgPicture.asset("assets/icons/Search.svg"),
             ),
           ),
         ),
