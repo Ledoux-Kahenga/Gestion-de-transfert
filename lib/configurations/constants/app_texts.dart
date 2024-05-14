@@ -4,6 +4,7 @@ class AppTexts {
   static const ok = "OK";
   static const id = "ID";
   static const title = "Title";
+  static const add = "AJOUTER";
   static const description = "Description";
   static const date = "Date";
   static const agence = "Agences";

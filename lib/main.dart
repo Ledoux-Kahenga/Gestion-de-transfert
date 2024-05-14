@@ -3,8 +3,24 @@ import 'package:agence_transfert/controllers/MenuAppController.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'login/admin/login_admin.dart';
+import 'package:firebase_core/firebase_core.dart';
+// import 'package:agence_transfert/database/firebase_options.dart' as firebase_options;
 
-void main() {
+void main() async {
+
+WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyCsJLnoa8ifarcLpikInwUrhTfNSAfx0E8",
+      authDomain: "gestion-de-transfert-67fca.firebaseapp.com",
+      projectId: "gestion-de-transfert-67fca",
+      storageBucket: "gestion-de-transfert-67fca.appspot.com",
+      messagingSenderId: "511580167896",
+      appId: "1:511580167896:web:14e91fa02573973e18c1ad",
+      measurementId: "G-NTXF224MMZ"
+    ),
+  );
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => MenuAppController(),

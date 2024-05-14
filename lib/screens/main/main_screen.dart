@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
-import 'package:agence_transfert/screens/main/dashboard_screen.dart';
+import 'package:agence_transfert/screens/main/home/agence_home.dart';
 import 'package:agence_transfert/screens/main/menu/side_menu.dart';
-// import 'package:agence_transfert/main/transactions_screen.dart'; // Assurez-vous d'importer la page Transactions
+
 
 class MainScreen extends StatefulWidget {
   @override

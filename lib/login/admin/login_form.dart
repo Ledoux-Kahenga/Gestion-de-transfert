@@ -2,8 +2,13 @@ import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:agence_transfert/configurations/constants/utils.dart';
 import 'package:agence_transfert/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:email_validator/email_validator.dart';
 
-class LoginForm extends StatefulWidget { // Assuming you want to extend StatelessWidget
+class LoginForm extends StatefulWidget {
+  final FirebaseAuth auth;
+
+  LoginForm({required this.auth});
 
   @override
   _LoginFormState createState() => _LoginFormState();
@@ -26,47 +31,109 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
+  void _doLogin(BuildContext context) async {
+    // Récupérer les valeurs des champs de formulaire
+    String username = usernameController.text;
+    String password = passwordController.text;
 
-void _doLogin(BuildContext context) {
-  // Récupérer les valeurs des champs de formulaire
-  String username = usernameController.text;
-  String password = passwordController.text;
+    try {
+      UserCredential userCredential =
+          await widget.auth.signInWithEmailAndPassword(
+        email: username,
+        password: password,
+      );
 
-  // Simuler une vérification des identifiants
-  bool isAuthenticated = true; // Cette valeur devrait être déterminée par une vérification réelle des identifiants
+      if (userCredential.user != null) {
+        if (isUserAdmin(userCredential.user!)) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MainScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Vous n\'êtes pas autorisé en tant qu\'administrateur')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Identifiants incorrects')),
+        );
+      }
+    } catch (e) {
+      String errorMessage =
+          'Une erreur s\'est produite lors de l\'authentification';
+      if (e is FirebaseAuthException) {
+        errorMessage = e.message ?? errorMessage;
 
-  if (isAuthenticated) {
-    // Naviguer vers une nouvelle page si l'utilisateur est authentifié
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => MainScreen()),
-    );
-  } else {
-    // Afficher un message d'erreur
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Identifiants incorrects')),
-    );
+        // Exceptions spécifiques de Firebase Auth
+        switch (e.code) {
+          case 'invalid-email':
+            errorMessage = 'Adresse e-mail invalide';
+            break;
+          case 'user-disabled':
+            errorMessage = 'Compte utilisateur désactivé';
+            break;
+          case 'user-not-found':
+            errorMessage = 'Utilisateur introuvable';
+            break;
+          case 'wrong-password':
+            errorMessage = 'Mot de passe incorrect';
+            break;
+          // Ajoutez d'autres exceptions Firebase Auth ici selon vos besoins
+          default:
+            // Utilisez le message d'erreur par défaut si le code d'erreur n'est pas géré
+            errorMessage = e.message ?? errorMessage;
+            break;
+        }
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    }
   }
-}
 
+  bool isUserAdmin(User user) {
+    // Vérifiez si l'utilisateur a un attribut qui indique qu'il est un administrateur
+    // Vous pouvez utiliser l'adresse e-mail ou tout autre attribut spécifique à l'administrateur
+    // Vérifiez si l'UID de l'utilisateur correspond à l'UID de l'administrateur
+    String adminUID =
+        'l9AdwfVRqPOS9k8GUl1tG7yEGYr1'; // Remplacez par l'UID de l'administrateur
+    return user.uid == adminUID;
+  }
 
   Widget build(BuildContext context) {
     return Form(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         _getTitle(),
         add24VerticalSpace(),
-        _getUsernameField(),
+        // _getUsernameField(),
+        TextFormField(
+          style: const TextStyle(color: Colors.black, fontSize: 16),
+          decoration: _getInputDecoration(AppTexts.userName),
+          validator: (value) {
+            if (value == null || !EmailValidator.validate(value)) {
+              return 'Veuillez entrer une adresse e-mail valide';
+            }
+            return null;
+          },
+          controller:
+              usernameController, // Lien avec le contrôleur du nom d'utilisateur
+        ),
         add16VerticalSpace(),
-        _getPasswordField(),
+        // _getPasswordField(),
+
+        TextFormField(
+          style: const TextStyle(color: Colors.black, fontSize: 16),
+          obscureText: true,
+          decoration: _getInputDecoration(AppTexts.password),
+          controller:
+              passwordController, // Lien avec le contrôleur du mot de passe
+        ),
+
         add16VerticalSpace(),
         _getActionButton()
       ]),
-    );
-  }
-
-  Widget _getUsernameField() {
-    return TextFormField(
-      style: const TextStyle(color: Colors.black, fontSize: 16),
-      decoration: _getInputDecoration(AppTexts.userName),
     );
   }
 
@@ -78,14 +145,6 @@ void _doLogin(BuildContext context) {
         fontWeight: FontWeight.bold,
         fontSize: 24,
       ),
-    );
-  }
-
-  Widget _getPasswordField() {
-    return TextFormField(
-      style: const TextStyle(color: Colors.black, fontSize: 16),
-      obscureText: true,
-      decoration: _getInputDecoration(AppTexts.password), // Fixed the missing parenthesis
     );
   }
 
@@ -117,4 +176,3 @@ void _doLogin(BuildContext context) {
     );
   }
 }
-

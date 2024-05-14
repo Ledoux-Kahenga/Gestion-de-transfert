@@ -3,6 +3,7 @@ import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/configurations/constants/utils.dart';
 import 'package:agence_transfert/login/admin/login_form.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginAdmin extends StatelessWidget {
   @override
@@ -38,7 +39,7 @@ class LoginAdmin extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         child: Center(
-          child: LoginForm(),
+          child: LoginForm(auth: FirebaseAuth.instance),
         ),
       ),
     );

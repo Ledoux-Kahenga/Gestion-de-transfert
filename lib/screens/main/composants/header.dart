@@ -9,7 +9,7 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // alignment: Alignment.topRight,
+      color: AppColors.backgroundWhite,
       child: Row(
         children: [
            Padding(

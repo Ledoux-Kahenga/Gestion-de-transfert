@@ -1,12 +1,12 @@
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
-import 'package:agence_transfert/configurations/constants/utils.dart';
 import 'package:agence_transfert/screens/main/menu/agence.dart';
+import 'package:agence_transfert/screens/main/menu/agent.dart';
 import 'package:flutter/material.dart';
-import 'package:agence_transfert/screens/main/dashboard_screen.dart';
+import 'package:agence_transfert/screens/main/home/agence_home.dart';
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 class SideMenu extends StatefulWidget {
   final Function(Widget) onItemSelected;
@@ -27,8 +27,8 @@ class _SideMenuState extends State<SideMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final menuAppController =
-        Provider.of<MenuAppController>(context, listen: false);
+    // final menuAppController =
+    //     Provider.of<MenuAppController>(context, listen: false);
     return Container(
       color: AppColors.backgroundWhite,
       child: Drawer(
@@ -62,7 +62,7 @@ class _SideMenuState extends State<SideMenu> {
                     ? AppColors.background
                     : Colors.transparent,
                 child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/menu_dashboard.svg'),
+                  leading: SvgPicture.asset('assets/icons/agence.svg', width: 16),
                   title: Text(
                     AppTexts.agence,
                     style: TextStyle(
@@ -70,6 +70,7 @@ class _SideMenuState extends State<SideMenu> {
                       color: _selectedItemIndex == 0
                           ? AppColors.textColorBlack
                           : Colors.black.withOpacity(0.6),
+                          fontWeight: FontWeight.bold
                     ),
                   ),
                   onTap: () {
@@ -86,7 +87,7 @@ class _SideMenuState extends State<SideMenu> {
                     ? AppColors.background
                     : const Color.fromARGB(0, 77, 14, 14),
                 child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/menu_profile.svg'),
+                  leading: SvgPicture.asset('assets/icons/user1.svg', width: 20,),
                   title: Text(
                     AppTexts.agent,
                     style: TextStyle(
@@ -94,22 +95,25 @@ class _SideMenuState extends State<SideMenu> {
                       color: _selectedItemIndex == 1
                           ? AppColors.textColorBlack
                           : Colors.black.withOpacity(0.6),
+                          fontWeight: FontWeight.bold
                     ),
                   ),
                   onTap: () {
                     setState(() {
                       _selectedItemIndex = 1;
-                      widget.onItemSelected(GestionAgencesPage());
+                      widget.onItemSelected(GestionAgentsPage());
                     });
                   },
                   selected: _selectedItemIndex == 1,
                 ),
               ),
               Container(
+                margin: EdgeInsets.only(left: 2),
                 color: _selectedItemIndex == 2
                     ? AppColors.background
                     : const Color.fromARGB(0, 77, 14, 14),
                 child: ListTile(
+                  leading: SvgPicture.asset('assets/icons/logout2.svg', width: 20),
                   title: Text(
                     AppTexts.logout,
                     style: TextStyle(
@@ -117,6 +121,7 @@ class _SideMenuState extends State<SideMenu> {
                       color: _selectedItemIndex == 2
                           ? AppColors.textColorBlack
                           : Colors.black.withOpacity(0.6),
+                          fontWeight: FontWeight.bold
                     ),
                   ),
                   onTap: () {
