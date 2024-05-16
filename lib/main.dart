@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'login/admin/login_admin.dart';
 import 'package:firebase_core/firebase_core.dart';
-// import 'package:agence_transfert/database/firebase_options.dart' as firebase_options;
+import 'package:agence_transfert/database/firebase_options.dart' as firebase_options;
 
 void main() async {
 

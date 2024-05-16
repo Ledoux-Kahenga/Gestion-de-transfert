@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DialogAgence {
-  List<TextEditingController> controllers = List.generate(3, (_) => TextEditingController());
+  List<TextEditingController> controllers =
+      List.generate(3, (_) => TextEditingController());
 
-  TextStyle inputFieldTextStyle =
-      TextStyle(color: Colors.black, fontSize: 16);
+  TextStyle inputFieldTextStyle = TextStyle(color: Colors.black, fontSize: 16);
 
   String? validateLeastValue(String? value, String errorMessage) {
     if (value == null || value.isEmpty) {
@@ -34,12 +34,13 @@ class DialogAgence {
           content: Builder(builder: (context) {
             var width = MediaQuery.of(context).size.width;
             var height = MediaQuery.of(context).size.height;
-            var newWidth = width - width *.50;
-            var newHeight = height > 450.0? 450.0 : height;
+            var newWidth = width - width * .25;
+            var newHeight = height > 700.0 ? 700.0 : height;
             return Container(
               height: newHeight,
               width: newWidth,
-              padding: const EdgeInsets.only(left: 36, right: 36, top: 24, bottom: 24),
+              padding: const EdgeInsets.only(
+                  left: 36, right: 36, top: 24, bottom: 24),
               child: _addDialogContent(context),
             );
           }),
@@ -52,7 +53,7 @@ class DialogAgence {
       String province, String ville, String adresse) async {
     try {
       final collectionRef = FirebaseFirestore.instance.collection('agences');
-      await collectionRef.add({
+      await collectionRef.doc().set({
         'province': province,
         'ville': ville,
         'adresse': adresse,
@@ -79,9 +80,7 @@ class DialogAgence {
         ),
         Container(
           width: 28,
-          child: FloatingActionButton.small(
-            backgroundColor: Colors.red,
-            shape: const CircleBorder(),
+          child: ElevatedButton(
             onPressed: () async {
               bool success = await ajouterAgence(
                 controllers[0].text,
@@ -92,6 +91,10 @@ class DialogAgence {
                 Navigator.pop(context);
               }
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: const CircleBorder(),
+            ),
             child: const Icon(
               Icons.close,
               size: 24,
@@ -124,9 +127,8 @@ class DialogAgence {
                     controllers[1].text,
                     controllers[2].text,
                   );
-                  if (success) {
-                    Navigator.of(context).pop();
-                  }
+                  // Vérifiez si le widget est toujours monté
+                  Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -148,7 +150,8 @@ class DialogAgence {
     );
   }
 
-  Widget _getNomAgenceField(String labelText, TextEditingController controller) {
+  Widget _getNomAgenceField(
+      String labelText, TextEditingController controller) {
     return TextFormField(
       keyboardType: TextInputType.text,
       maxLength: 40,
