@@ -1,137 +1,148 @@
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
-import 'package:agence_transfert/screens/main/composants/dialog_agence.dart';
+import 'package:agence_transfert/screens/main/composants/header_agent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:agence_transfert/constants.dart';
-import 'package:agence_transfert/screens/main/composants/header.dart';
+import 'package:agence_transfert/screens/main/composants/header_home.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:agence_transfert/screens/main/composants/dialog_agent.dart'; // Assurez-vous que le chemin d'importation est correct
+import 'package:agence_transfert/screens/main/composants/dialog_agence.dart';
+import 'package:data_table_2/data_table_2.dart';
 
 class GestionAgentsPage extends StatelessWidget {
-  // final GlobalKey<DialogAgenceState> dialogKey = GlobalKey<DialogAgenceState>();
-
   @override
   Widget build(BuildContext context) {
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        // Calculer la hauteur en fonction de la hauteur totale de l'écran
         double screenHeight = constraints.maxHeight;
-        double dashboardHeight =
-            screenHeight * (5 / 6); // 5/6 de la hauteur de l'écran
+        double dashboardHeight = screenHeight;
         return Container(
           child: Scaffold(
             body: Column(
               children: [
                 Container(
-                    child: Header()), // Placez Header() au début de la Column
-                SizedBox(height: defaultPadding),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    margin: EdgeInsets.only(left: 16),
-                    width: 150, // Spécifiez la largeur souhaitée
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // showCustomDialog(context);
-                        DialogAgent().showCustomDialog(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        // Cela centre les enfants dans le Row
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/add.svg',
-                            width: 18, // Ajustez la largeur de l'icône ici
-                            height: 18,
-                            color: AppColors
-                                .backgroundWhite, // Ajustez la hauteur de l'icône ici
-                          ),
-                          const Text(
-                            AppTexts.add,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  margin: EdgeInsets.only(left: 8, top: 8, right: 8),
+                  child: HeaderAgent(),
                 ),
-                SizedBox(height: defaultPadding),
-
                 Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('agents')
-                        .orderBy('id',
-                            descending: false) // Tri par ordre croissant
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.hasError) {
-                        return Text('Erreur : ${snapshot.error}');
-                      }
+                  child: Container(
+                    margin: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors
+                          .white, // Remplacez ceci par la couleur que vous souhaitez
+                      // Optionnel : pour donner des coins arrondis
+                    ),
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('agents').orderBy('idAgent', descending: false)
+                          .snapshots(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.hasError) {
+                          return Text('Erreur : ${snapshot.error}');
+                        }
 
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        }
 
-                      // Création de la liste de rows avec les documents triés
-                      List<DataRow> rows =
-                          snapshot.data!.docs.map((DocumentSnapshot doc) {
-                        Map<String, dynamic> data =
-                            doc.data() as Map<String, dynamic>;
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(data['id'].toString())),
-                            DataCell(Text(data['nom'] ?? '')),
-                            DataCell(Text(data['password'] ?? '')),
-                            DataCell(Text(data['phone'] ?? '')),
-                          ],
+                        List<Map<String, dynamic>> rowsData;
+
+                        if (snapshot.hasData) {
+                          rowsData = snapshot.data!.docs.map((doc) {
+                            return {
+                              // 'id': int.parse(doc.id), // Convertir l'ID en entier
+                              // 'id': doc.get('id'),
+                              // Utilisez doc.id pour obtenir l'ID du document
+                              'idAgent': doc.get('idAgent'),
+                              'nom': doc.get('nom'),
+                              // Corrigez le nom du champ ici
+                              'password': doc.get('password'),
+                              'agenceNom': doc.get('agenceNom'),
+                              'contact': doc.get('contact'),
+                            };
+                          }).toList();
+                        } else {
+                          rowsData = [];
+                        }
+
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxHeight: dashboardHeight,
+                            ),
+
+                            // child: Padding(
+                            //   padding: const EdgeInsets.all(8.0),
+                            child: DataTable2(
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: AppColors.background1),
+                              ),
+                              // minWidth: 600,
+                              headingRowColor:
+                                  MaterialStateProperty.resolveWith(
+                                      (states) => AppColors.customColor),
+                              // horizontalMargin: 12,
+                              columns: const <DataColumn>[
+                                DataColumn2(
+                                  label: Center(
+                                    child: Text('ID',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                  //  size: ColumnSize.S,
+                                  fixedWidth: 45,
+                                ),
+                                DataColumn2(
+                                    label: Text('NOM DE L\' AGENT',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    size: ColumnSize.M),
+                                DataColumn2(
+                                    label: Text('MOT DE PASSE',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    size: ColumnSize.M),
+                                // DataColumn2(
+                                //     label:  Text(
+                                //           'AGENCE',
+                                //           style: TextStyle(
+                                //               fontWeight: FontWeight.bold)),
+                                //     size: ColumnSize.L),
+                                DataColumn2(
+                                    label: Text('AGENCE',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    size: ColumnSize.M),
+                                DataColumn2(
+                                    label: Text('CONTACT',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    size: ColumnSize.M),
+                              ],
+                              rows: rowsData
+                                  .map((row) => DataRow(
+
+                                          // color: MaterialStateColor.resolveWith((states) => AppColors.background),
+                                          cells: [
+                                            DataCell(Center(
+                                                child: Text(
+                                                    row['idAgent'].toString()))),
+                                            DataCell(Text(row['nom'])),
+                                            DataCell(Text(row['password'])),
+                                            DataCell(Text(row['agenceNom'])),
+                                            DataCell(Text(row['contact']))
+                                          ]))
+                                  .toList(),
+                            ),
+                          ),
                         );
-                      }).toList();
-
-                      return DataTable(
-                        border: TableBorder
-                            .all(), // Ajouter des bordures autour de tout le tableau
-                        columns: const <DataColumn>[
-                          DataColumn(
-                            label: Text(
-                              'ID',
-                              style: TextStyle(
-                                  fontWeight: FontWeight
-                                      .bold), // Rendre l'entête en gras
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              'NOM AGENT',
-                              style: TextStyle(
-                                  fontWeight: FontWeight
-                                      .bold), // Rendre l'entête en gras
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              'PASSWORD',
-                              style: TextStyle(
-                                  fontWeight: FontWeight
-                                      .bold), // Rendre l'entête en gras
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              'TELEPHONE',
-                              style: TextStyle(
-                                  fontWeight: FontWeight
-                                      .bold), // Rendre l'entête en gras
-                            ),
-                          ),
-                        ],
-                        rows: rows,
-                      );
-                    },
+                      },
+                    ),
                   ),
                 ),
               ],

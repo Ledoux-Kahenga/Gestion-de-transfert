@@ -3,7 +3,7 @@ import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:agence_transfert/constants.dart';
-import 'package:agence_transfert/screens/main/composants/header.dart';
+import 'package:agence_transfert/screens/main/composants/header_home.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:agence_transfert/screens/main/composants/dialog_agence.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -36,7 +36,7 @@ class DashboardScreen extends StatelessWidget {
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('agences')
-                          .orderBy('id', descending: false)
+                          .orderBy('idAgence', descending: false)
                           .snapshots(),
                       builder: (BuildContext context,
                           AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -54,7 +54,8 @@ class DashboardScreen extends StatelessWidget {
                         if (snapshot.hasData) {
                           rowsData = snapshot.data!.docs.map((doc) {
                             return {
-                              'id': doc.id,
+                              // 'id': int.parse(doc.id), // Convertir l'ID en entier
+                              'idAgence': doc.get('idAgence'),
                               // Utilisez doc.id pour obtenir l'ID du document
                               'nom': doc.get('nom'),
                               // Corrigez le nom du champ ici
@@ -94,7 +95,7 @@ class DashboardScreen extends StatelessWidget {
                                             fontWeight: FontWeight.bold)),
                                   ),
                                   //  size: ColumnSize.S,
-                                  fixedWidth: 40,
+                                  fixedWidth: 45,
                                 ),
                                 DataColumn2(
                                     label: Text('NOM DE L\' AGENCE',
@@ -128,9 +129,8 @@ class DashboardScreen extends StatelessWidget {
                                           cells: [
                                             DataCell(Center(
                                                 child: Text(
-                                                    row['id'].toString()))),
-                                            DataCell(Text(
-                                                '${row['nom']} ${row['ville']}')),
+                                                    row['idAgence'].toString()))),
+                                            DataCell(Text(row['nom'])),
                                             DataCell(Text(row['province'])),
                                             DataCell(Text(row['ville'])),
                                             DataCell(Text(row['adresse']))

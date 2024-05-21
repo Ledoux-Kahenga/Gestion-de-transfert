@@ -3,8 +3,6 @@ import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/configurations/constants/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
-// import 'package:form_validator/form_validator.dart';
 
 class DialogAgence extends StatefulWidget {
   @override
@@ -13,11 +11,12 @@ class DialogAgence extends StatefulWidget {
 
 class _DialogAgenceState extends State<DialogAgence> {
   final _formKey = GlobalKey<FormState>();
-  final GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
   final TextEditingController provinceController = TextEditingController();
   final TextEditingController villeController = TextEditingController();
   final TextEditingController adresseController = TextEditingController();
-  String selectedValue = '';
+
+  String? selectedValue; // Initialiser à null
+  String? selectedValueVille;
 
   String currentText = "";
 
@@ -243,9 +242,19 @@ class _DialogAgenceState extends State<DialogAgence> {
             Radius.circular(10.0),
           ),
         ),
-        title: Text(
-          'NOUVELLE AGENCE BAUDOUIN',
-          textAlign: TextAlign.center,
+        title: Column(
+          children: [
+            Text(
+              'NOUVELLE AGENCE BAUDOUIN',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            ),
+            Text(
+              'LA COLOMBE',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            ),
+          ],
         ),
         content: Container(
           height: newHeight,
@@ -255,106 +264,72 @@ class _DialogAgenceState extends State<DialogAgence> {
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
-              child: ListBody(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  TextFormField(
+                  DropdownButtonFormField<String>(
+                    hint: Text('Sélectionnez une province'),
+                    value: selectedValue,
                     decoration: _getInputDecoration("PROVINCE"),
-                    controller: provinceController,
-                    readOnly: true, // Permet l'édition directe du texte
                     validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Ce champ est requis';
+                      if (value == null) {
+                        return 'Veuillez sélectionner une province';
                       }
                       return null;
                     },
-                    onTap: () {
-                      showModalBottomSheet(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10.0),
-                          ),
-                        ),
-                        context: context,
-                        isScrollControlled:
-                            true, // Permet à la feuille de bas d'écran d'utiliser toute la hauteur disponible
-                        builder: (context) {
-                          return SingleChildScrollView(
-                            // Utilisez SingleChildScrollView pour permettre le défilement si nécessaire
-                            child: Container(
-                              height: newHeight,
-                              width: newWidth,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: provinces.length,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    title: Text(provinces[index]),
-                                    onTap: () {
-                                      setState(() {
-                                        selectedValue = provinces[index];
-                                        provinceController.text = selectedValue;
-                                      });
-                                      Navigator.of(context)
-                                          .pop(); // Ferme la feuille de bas d'écran
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                      );
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValue = newValue!;
+                        provinceController.text = selectedValue ?? '';
+                      });
                     },
+                    items: [
+                      // Ajouter une option "Sélectionnez une province"
+                      DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('Sélectionnez une province'),
+                      ),
+                      ...provinces
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ],
                   ),
                   SizedBox(height: 12),
-                  TextFormField(
-                    decoration: _getInputDecoration('VILLE OU AUTRE ENTITE'),
 
-                    controller: villeController,
-                    readOnly: true, // Permet l'édition directe du texte
+                  DropdownButtonFormField<String>(
+                    hint: Text('Sélectionnez une province'),
+                    value: selectedValueVille,
+                    decoration: _getInputDecoration("VILLE"),
                     validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Ce champ est requis';
+                      if (value == null) {
+                        return 'Veuillez sélectionner une ville';
                       }
                       return null;
                     },
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10.0),
-                          ),
-                        ), // Permet à la feuille de bas d'écran d'utiliser toute la hauteur disponible
-                        builder: (context) {
-                          return SingleChildScrollView(
-                            // Utilisez SingleChildScrollView pour permettre le défilement si nécessaire
-                            child: Container(
-                              height: newHeight,
-                              width: newWidth,
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: villesRDC.length,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    title: Text(villesRDC[index]),
-                                    onTap: () {
-                                      setState(() {
-                                        selectedValue = villesRDC[index];
-                                        villeController.text = selectedValue;
-                                      });
-                                      Navigator.of(context)
-                                          .pop(); // Ferme la feuille de bas d'écran
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                      );
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueVille = newValue!;
+                        villeController.text = selectedValueVille ?? '';
+                      });
                     },
+                    items: [
+                      // Ajouter une option "Sélectionnez une province"
+                      DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('Sélectionnez une ville'),
+                      ),
+                      ...villesRDC
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ],
                   ),
                   SizedBox(height: 12),
                   TextFormField(
@@ -382,46 +357,49 @@ class _DialogAgenceState extends State<DialogAgence> {
           ),
         ),
         actions: <Widget>[
-          
           TextButton(
+            style: TextButton.styleFrom(
+            foregroundColor: Colors.white, // Couleur du texte
+            backgroundColor: Colors.red, // Couleur de fond
+            padding: EdgeInsets.symmetric(
+                horizontal: 16, vertical: 12), // Espacement du texte
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18), // Coins arrondis
+            ),
+          ),
             child: const Text(
               'Annuler',
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold
-              ),
-              ),
+              style: TextStyle(color: Colors.white),
+            ),
             onPressed: () {
               Navigator.of(context).pop();
             },
           ),
-          ElevatedButton(
+          TextButton(
+            style: TextButton.styleFrom(
+            foregroundColor: Colors.white, // Couleur du texte
+            backgroundColor: Colors.green, // Couleur de fond
+            padding: EdgeInsets.symmetric(
+                horizontal: 16, vertical: 12), // Espacement du texte
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18), // Coins arrondis
+            ),
+          ),
             child: const Text(
               'Ajouter',
               style: TextStyle(color: Colors.white),
             ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.black,
-            ),
-            onPressed: () async {
+            onPressed: () {
               if (_formKey.currentState!.validate()) {
-                bool success = await ajouterAgence(
-                  provinceController.text.trim(),
-                  villeController.text.trim(),
-                  adresseController.text.trim(),
+              _createAgence(
+                provinceController.text.trim(), 
+                villeController.text.trim(), 
+                adresseController.text.trim()
                 );
-
-                if (success) {
-                  Navigator.of(context).pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content:
-                            const Text('Erreur lors de l\'ajout de l\'agence')),
-                  );
-                }
-              }
-            },
+                print('Agence créé avec succès');
+                Navigator.of(context).pop();
+          }
+            }
           ),
         ],
       ),
@@ -442,23 +420,21 @@ Future<bool> ajouterAgence(
         ? (lastIdDoc.data() as Map<String, dynamic>)['lastAgenceId'] ?? 0
         : 0;
 
-    int newId = lastId + 1;
-
-    // Affecter un agent de transfert en fonction du nom
-    String agentId = await assignTransferAgent("Baudouin");
+    int numericId = lastId + 1;
 
     final collectionRef = FirebaseFirestore.instance.collection('agences');
     await collectionRef.add({
-      'id': newId.toString(), // Convertir l'ID en une valeur de texte
-      'nom': "Baudouin",
+      'numericId': numericId,
+      'nom': "Baudouin -  $ville",
       'province': province,
       'ville': ville,
       'adresse': adresse,
-      'agentId': agentId,
+      'estAttribuee': false
     });
 
     // Mettre à jour la dernière valeur d'ID dans le document de configuration
-    await configDocRef.set({'lastAgenceId': newId}, SetOptions(merge: true));
+    await configDocRef
+        .set({'lastAgenceId': numericId}, SetOptions(merge: true));
 
     print('Agence ajoutée avec succès');
     return true;
@@ -468,15 +444,39 @@ Future<bool> ajouterAgence(
   }
 }
 
-Future<String> assignTransferAgent(String nom) async {
-  // Logique pour affecter un agent de transfert en fonction du nom
-  // Remplacez cette logique par la vôtre
-  // Par exemple, vous pouvez requêter une base de données ou utiliser une autre source de données pour obtenir l'agent approprié
-  // Pour l'instant, nous retournerons un agent fictif avec un ID statique
-  await Future.delayed(
-      Duration(seconds: 2)); // Simulation d'une requête asynchrone
-  return 'agent123';
-}
+ void _createAgence(String province, String ville, String adresse) async {
+    final agentRef = FirebaseFirestore.instance.collection('agences').doc();
+    final configDocRef =
+        FirebaseFirestore.instance.collection('config').doc('lastAgenceId');
+    DocumentSnapshot lastIdDoc = await configDocRef.get();
+
+    // Vérifier si le document existe et si lastAgenceId est un entier
+    int lastId = lastIdDoc.exists && lastIdDoc.data() != null
+        ? (lastIdDoc.data() as Map<String, dynamic>)['lastAgenceId'] ?? 0
+        : 0;
+
+    int idAgence = lastId + 1;
+
+    agentRef.set({
+      'idAgence': idAgence,
+      'nom': "Baudouin -  $ville",
+      'province': province,
+      'ville': ville,
+      'adresse': adresse,
+      'estAttribuee': false
+    }).then((value) {
+      // Mettre à jour le document de l'agence pour référencer l'agent et passer estAttribuee à true
+      // _agencesRef.doc(_selectedAgenceId).update({
+      //   'estAttribuee': true,
+      //   'agent': agentRef.id,
+      // });
+    }).catchError((error) {
+      print('Erreur lors de la création de l\'agence: $error');
+    });
+    // Mettre à jour la dernière valeur d'ID dans le document de configuration
+    await configDocRef.set({'lastAgenceId': idAgence}, SetOptions(merge: true));
+  }
+
 
 InputDecoration _getInputDecoration(String hints) {
   return InputDecoration(
@@ -487,6 +487,5 @@ InputDecoration _getInputDecoration(String hints) {
       hints,
       style: const TextStyle(color: Colors.black87),
     ),
-    suffixIcon: Icon(Icons.arrow_drop_down),
   );
 }
