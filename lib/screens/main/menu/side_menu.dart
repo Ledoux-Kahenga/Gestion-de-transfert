@@ -1,8 +1,10 @@
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
-import 'package:agence_transfert/screens/main/menu/agence.dart';
-import 'package:agence_transfert/screens/main/menu/agent.dart';
+import 'package:agence_transfert/login/admin/login_admin.dart';
+// import 'package:agence_transfert/screens/main/menu/agence.dart';
+// import 'package:agence_transfert/screens/main/menu/agent.dart';
+import 'package:agence_transfert/screens/main/pages/agent_transferts.dart';
 import 'package:flutter/material.dart';
-import 'package:agence_transfert/screens/main/home/agence_home.dart';
+import 'package:agence_transfert/screens/main/pages/agence_home.dart';
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -127,7 +129,7 @@ class _SideMenuState extends State<SideMenu> {
                   onTap: () {
                     setState(() {
                       _selectedItemIndex = 2;
-                      widget.onItemSelected(GestionAgencesPage());
+                      widget.onItemSelected(LoginAdmin());
                     });
                   },
                   selected: _selectedItemIndex == 2,

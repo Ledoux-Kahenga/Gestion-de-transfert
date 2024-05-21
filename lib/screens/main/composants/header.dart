@@ -1,10 +1,18 @@
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
+import 'package:agence_transfert/screens/main/composants/dialog_agence.dart';
 import 'package:flutter/material.dart';
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class Header extends StatelessWidget {
-  const Header({Key? key}) : super(key: key);
+  // final GlobalKey<DialogAgenceState> dialogKey;
+  
+    
+
+  // Header({Key? key}) : super(key: key);
+  
+
+//  Header({required GlobalKey<DialogAgenceState> dialogKey});
 
   @override
   Widget build(BuildContext context) {
@@ -12,22 +20,61 @@ class Header extends StatelessWidget {
       color: AppColors.backgroundWhite,
       child: Row(
         children: [
-           Padding(
-             padding: const EdgeInsets.all(8.0),
-             child: Text(
-                "AGENCES",
-                style: TextStyle(color: AppColors.textColorBlack,
-                fontSize: 24,
-                fontWeight: FontWeight.w700),
-              ),
-           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "AGENCES",
+              style: TextStyle(
+                  color: AppColors.textColorBlack,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
           Spacer(), // Ajoutez un Spacer pour pousser les widgets vers la droite
           Padding(
-            padding: EdgeInsets.all(8), // Ajoutez de la marge sur tous les côtés de SearchField
-            child: SearchField(),
+            padding: EdgeInsets.all(
+                8), // Ajoutez de la marge sur tous les côtés de SearchField
+            // child: SearchField(),
           ),
           Padding(
-            padding: EdgeInsets.all(8), // Ajoutez de la marge sur tous les côtés de ProfileCard
+            padding: EdgeInsets.all(8),
+            child: Container(
+              child: Container(
+                margin: EdgeInsets.only(left: 32),
+                width: 150,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                      return DialogAgence();
+                      });
+                    },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/add.svg',
+                        width: 18,
+                        height: 18,
+                        color: AppColors.backgroundWhite,
+                      ),
+                      const Text(
+                        AppTexts.add,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(
+                8), // Ajoutez de la marge sur tous les côtés de ProfileCard
             child: ProfileCard(),
           ),
         ],
@@ -59,7 +106,8 @@ class ProfileCard extends StatelessWidget {
             height: 38,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppTexts.defaultPadding / 2),
+            padding:
+                EdgeInsets.symmetric(horizontal: AppTexts.defaultPadding / 2),
             child: Text(
               "Angelina Jolie",
               style: TextStyle(color: AppColors.textColorBlack),
@@ -84,7 +132,8 @@ class SearchField extends StatelessWidget {
         elevation: 2,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6), // Augmentez le rayon pour un effet plus prononcé
+          borderRadius: BorderRadius.circular(
+              6), // Augmentez le rayon pour un effet plus prononcé
         ),
         child: TextField(
           decoration: InputDecoration(
@@ -93,7 +142,8 @@ class SearchField extends StatelessWidget {
             filled: true,
             border: OutlineInputBorder(
               borderSide: BorderSide.none,
-              borderRadius: const BorderRadius.all(Radius.circular(6)), // Assurez-vous que le rayon est le même ici
+              borderRadius: const BorderRadius.all(Radius.circular(
+                  6)), // Assurez-vous que le rayon est le même ici
             ),
             suffixIcon: InkWell(
               onTap: () {},
@@ -103,7 +153,8 @@ class SearchField extends StatelessWidget {
                     horizontal: AppTexts.defaultPadding / 2),
                 decoration: BoxDecoration(
                   color: AppColors.textColorBlack,
-                  borderRadius: const BorderRadius.all(Radius.circular(4)), // Assurez-vous que le rayon est le même ici
+                  borderRadius: const BorderRadius.all(Radius.circular(
+                      4)), // Assurez-vous que le rayon est le même ici
                 ),
                 child: SvgPicture.asset("assets/icons/Search.svg"),
               ),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'login/admin/login_admin.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:agence_transfert/database/firebase_options.dart' as firebase_options;
+// import 'package:agence_transfert/database/firebase_options.dart' as firebase_options;
 
 void main() async {
 
@@ -24,7 +24,7 @@ WidgetsFlutterBinding.ensureInitialized();
   runApp(
     ChangeNotifierProvider(
       create: (context) => MenuAppController(),
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Gestion de transfert de fonds',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Roboto',
         primarySwatch: Colors.blue,
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
           ),
         ],
         child: LoginAdmin(),
+        // child: DashboardScreen(),
       ),
     );
   }
