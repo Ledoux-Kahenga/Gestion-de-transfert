@@ -1,5 +1,6 @@
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
+import 'package:agence_transfert/login/agentDeTransfert/login_agent.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'login/admin/login_admin.dart';
@@ -48,9 +49,17 @@ class MyApp extends StatelessWidget {
             create: (context) => MenuAppController(),
           ),
         ],
-        child: LoginAdmin(),
+        child: LoginAgent(),
         // child: DashboardScreen(),
       ),
+
+  //      initialRoute: '/',
+  // routes: {
+  //   '/': (context) => LoginAdmin(), // Route par défaut
+  //   '/admin': (context) => AdminModule(), // Route pour le module administrateur
+  //   '/agent': (context) => AgentModule(), // Route pour le module agent de transfert
+  // },
+
     );
   }
 }

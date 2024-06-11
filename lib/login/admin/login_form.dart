@@ -1,6 +1,6 @@
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:agence_transfert/configurations/constants/utils.dart';
-import 'package:agence_transfert/screens/main/main_screen.dart';
+import 'package:agence_transfert/login/admin/screens/main/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:email_validator/email_validator.dart';
