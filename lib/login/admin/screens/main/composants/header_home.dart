@@ -109,7 +109,7 @@ class ProfileCard extends StatelessWidget {
             padding:
                 EdgeInsets.symmetric(horizontal: AppTexts.defaultPadding / 2),
             child: Text(
-              "Angelina Jolie",
+              "Admin",
               style: TextStyle(color: AppColors.textColorBlack),
             ),
           ),

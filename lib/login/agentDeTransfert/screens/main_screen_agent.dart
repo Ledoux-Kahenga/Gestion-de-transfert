@@ -6,12 +6,21 @@ import 'package:agence_transfert/login/agentDeTransfert/screens/menu/side_menu_a
 
 
 class MainScreenAgent extends StatefulWidget {
+
+   late String agenceNom;
+   late String nom;
+   late String agenceId;
+    MainScreenAgent({required this.agenceNom, required this.nom, required this.agenceId});
+
+    // late Widget widget;
+
+  
   @override
   _MainScreenAgentState createState() => _MainScreenAgentState();
 }
 
 class _MainScreenAgentState extends State<MainScreenAgent> {
-  Widget _currentPage = DashboardAgentScreen();
+  late Widget _currentPage ;
   late MenuAppController menuAppController;
 
   void _changePage(Widget page) {
@@ -23,8 +32,10 @@ class _MainScreenAgentState extends State<MainScreenAgent> {
   @override
   void initState() {
     super.initState();
+    _currentPage = DashboardAgentScreen(agenceNom: widget.agenceNom, nom: widget.nom, agenceId: widget.agenceId,);
     menuAppController =
         MenuAppController(); // Initialisation de menuAppController
+        
   }
 
   @override

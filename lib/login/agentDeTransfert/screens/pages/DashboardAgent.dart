@@ -1,6 +1,9 @@
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/login/admin/screens/main/composants/agenceDialog.dart';
+import 'package:agence_transfert/login/admin/screens/main/composants/dialog_agent.dart';
+import 'package:agence_transfert/login/agentDeTransfert/screens/composants/dialog_envoyer.dart';
+import 'package:agence_transfert/login/agentDeTransfert/screens/composants/dialog_recevoir.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/composants/footerAgent.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/composants/header_home_Agent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +12,12 @@ import 'package:agence_transfert/constants.dart';
 import 'package:agence_transfert/login/admin/screens/main/composants/header_home.dart';
 
 class DashboardAgentScreen extends StatefulWidget {
+  late String agenceNom;
+  late String nom;
+  late String agenceId;
+
+  DashboardAgentScreen({required this.agenceNom, required this.nom, required this.agenceId});
+
   @override
   _DashboardAgentScreenState createState() => _DashboardAgentScreenState();
 }
@@ -65,7 +74,7 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                               height: 38,
                             ),
                             Text(
-                              "Angelina Jolie",
+                              widget.nom,
                               style: TextStyle(color: AppColors.textColorBlack),
                             ),
                             Icon(Icons.keyboard_arrow_down),
@@ -79,12 +88,10 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
               Container(
                 margin: EdgeInsets.only(left: 8, top: 8, right: 8),
                 child: Row(
-                  // mainAxisAlignment: MainAxisAlignment.center,
-                  // crossAxisAlignment: CrossAxisAlignment.center,
+
                   children: [
                     Column(
-                      // crossAxisAlignment: CrossAxisAlignment.start,
-                      // mainAxisAlignment: MainAxisAlignment.start,
+
                       children: [
                         Card(
                           color: Colors.white,
@@ -104,7 +111,7 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                             height: 100,
                             child: Center(
                               child: Text(
-                                "BAUDOUIN KOLWEZI",
+                                widget.agenceNom,
                                 style: TextStyle(
                                     fontSize: 24,
                                     color: AppColors.textColorBlack,
@@ -114,7 +121,6 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                             ),
                           ),
                         ),
-                        // SizedBox(width: 16,),
                         Row(
                           children: [
                             Container(
@@ -125,29 +131,42 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                 surfaceTintColor: Colors.transparent,
                                 shadowColor: Color.fromARGB(255, 243, 220, 204),
                                 elevation: 4,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2),
-                                    // border: Border.all(color: Colors.blue, width: 2),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/envoyer.png',
-                                        height: 100.0,
-                                        width: 100.0,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Text(
-                                        "Envoyer",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: AppColors.textColorBlack,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return DialogEnvoyer(
+                                            agenceNom: widget.agenceNom,
+                                            nom: widget.nom,
+                                            agenceId: widget.agenceId,
+                                          );
+                                        });
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(2),
+                                      // border: Border.all(color: Colors.blue, width: 2),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/envoyer.png',
+                                          height: 100.0,
+                                          width: 100.0,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Text(
+                                          "Envoyer",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: AppColors.textColorBlack,
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -187,37 +206,50 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                 ),
                               ),
                             ),
-                            Container(
-                              height: 200,
-                              width: 200,
-                              child: Card(
-                                color: Colors.white,
-                                surfaceTintColor: Colors.transparent,
-                                shadowColor: Color.fromARGB(255, 243, 220, 204),
-                                elevation: 4,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2),
-                                    // border: Border.all(color: Colors.blue, width: 2),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/recevoir.png',
-                                        height: 100.0,
-                                        width: 100.0,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Text(
-                                        "Recevoir",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: AppColors.textColorBlack,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
+                           GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return DialogRecevoir(
+                                            agenceNom: widget.agenceNom,
+                                            nom: widget.nom,
+                                            agenceId: widget.agenceId,
+                                          );
+                                        });
+                                  },
+                              child: Container(
+                                height: 200,
+                                width: 200,
+                                child: Card(
+                                  color: Colors.white,
+                                  surfaceTintColor: Colors.transparent,
+                                  shadowColor: Color.fromARGB(255, 243, 220, 204),
+                                  elevation: 4,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(2),
+                                      // border: Border.all(color: Colors.blue, width: 2),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/recevoir.png',
+                                          height: 100.0,
+                                          width: 100.0,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Text(
+                                          "Recevoir",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: AppColors.textColorBlack,
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -336,7 +368,6 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                       ],
                     ),
                     Container(
-                      // margin: EdgeInsets.only(left: 8, top: 0, right: 0),
                       height: 510,
                       width: 460.200,
                       child: const Card(

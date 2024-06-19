@@ -2,6 +2,7 @@ import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:agence_transfert/configurations/constants/utils.dart';
 import 'package:agence_transfert/login/admin/screens/main/main_screen.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/main_screen_agent.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:email_validator/email_validator.dart';
@@ -32,96 +33,70 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  // void _doLogin(BuildContext context) async {
-  //   // Récupérer les valeurs des champs de formulaire
-  //   String username = usernameController.text;
-  //   String password = passwordController.text;
+  void _doLogin(BuildContext context) async {
+    String nom = usernameController.text.trim();
+    String password = passwordController.text.trim();
 
-  //   try {
-  //     UserCredential userCredential =
-  //         await widget.auth.signInWithEmailAndPassword(
-  //       email: username,
-  //       password: password,
-  //     );
-
-  //     if (userCredential.user != null) {
-  //       if (isUserAdmin(userCredential.user!)) {
-  //         Navigator.of(context).pushReplacement(
-  //           MaterialPageRoute(builder: (context) => MainScreen()),
-  //         );
-  //       } else {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //               content: Text(
-  //                   'Vous n\'êtes pas autorisé en tant qu\'administrateur')),
-  //         );
-  //       }
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Identifiants incorrects')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     String errorMessage =
-  //         'Une erreur s\'est produite lors de l\'authentification';
-  //     if (e is FirebaseAuthException) {
-  //       errorMessage = e.message ?? errorMessage;
-
-  //       // Exceptions spécifiques de Firebase Auth
-  //       switch (e.code) {
-  //         case 'invalid-email':
-  //           errorMessage = 'Adresse e-mail invalide';
-  //           break;
-  //         case 'user-disabled':
-  //           errorMessage = 'Compte utilisateur désactivé';
-  //           break;
-  //         case 'user-not-found':
-  //           errorMessage = 'Utilisateur introuvable';
-  //           break;
-  //         case 'wrong-password':
-  //           errorMessage = 'Mot de passe incorrect';
-  //           break;
-  //         // Ajoutez d'autres exceptions Firebase Auth ici selon vos besoins
-  //         default:
-  //           // Utilisez le message d'erreur par défaut si le code d'erreur n'est pas géré
-  //           errorMessage = e.message ?? errorMessage;
-  //           break;
-  //       }
-  //     }
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text(errorMessage)),
-  //     );
-  //   }
-  // }
-
-  // bool isUserAdmin(User user) {
-  //   // Vérifiez si l'utilisateur a un attribut qui indique qu'il est un administrateur
-  //   // Vous pouvez utiliser l'adresse e-mail ou tout autre attribut spécifique à l'administrateur
-  //   // Vérifiez si l'UID de l'utilisateur correspond à l'UID de l'administrateur
-  //   String adminUID =
-  //       'l9AdwfVRqPOS9k8GUl1tG7yEGYr1'; // Remplacez par l'UID de l'administrateur
-  //   return user.uid == adminUID;
-  // }
-
-  void _doLogin(BuildContext context) {
-    if (isUserAdmin(null)) {
-      // Simulons un utilisateur qui serait considéré comme un administrateur
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MainScreenAgent()),
-      );
+    if (nom.isNotEmpty && password.isNotEmpty) {
+      _signIn(nom, password);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('Vous n\'êtes pas autorisé en tant qu\'administrateur')),
-      );
+      print('Veuillez remplir tous les champs.');
     }
   }
 
-  bool isUserAdmin(User? user) {
-    // Cette méthode peut être modifiée pour toujours retourner vrai ou faux selon votre besoin de simulation
-    // Par exemple, pour simuler un utilisateur administrateur, vous pouvez simplement retourner vrai :
-    return true; // Ou false, selon le cas de test que vous souhaitez simuler
+  Future<void> _signIn(String nom, String password) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('agents')
+        .where('nom', isEqualTo: nom)
+        .get();
+    if (querySnapshot.docs.isEmpty) {
+      print('Aucun utilisateur trouvé pour ce nom.');
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Erreur de connexion'),
+              content: Text('Le nom ou le mot de passe est incorrect.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          });
+      return;
+    }
+    final userDocument = querySnapshot.docs.first;
+    final storedPassword = userDocument.data()['password'];
+    if (storedPassword == password) {
+      
+      // Connexion réussie
+      final agenceNom = userDocument.data()['agenceNom']; 
+      final nom = userDocument.data()['nom']; 
+      final agenceId = userDocument.data()['agenceId']; 
+     
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => MainScreenAgent(agenceNom: agenceNom, nom: nom, agenceId: agenceId)));
+    } else {
+      print('Mot de passe incorrect.');
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Erreur de connexion'),
+              content: Text('Le mot de passe est incorrect.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          });
+    }
   }
 
   Widget build(BuildContext context) {

@@ -46,12 +46,8 @@ class _SideMenuAgentState extends State<SideMenuAgent> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        "assets/images/logo.png",
-                       
-                        height: 136, // Spécifiez la largeur souhaitée
-                        // Flutter ajustera la hauteur pour maintenir les proportions
-                      ),
+                     Image.asset('assets/images/logo.png', width: 180,),
+                    
                     ],
                   ),
                 ),
@@ -76,63 +72,64 @@ class _SideMenuAgentState extends State<SideMenuAgent> {
                   onTap: () {
                     setState(() {
                       _selectedItemIndex = 0;
-                      widget.onItemSelected(DashboardAgentScreen());
+                      widget.onItemSelected(DashboardAgentScreen(agenceNom: '', nom: '', agenceId: "",));
                     });
                   },
                   selected: _selectedItemIndex == 0,
                 ),
               ),
-              Container(
-                color: _selectedItemIndex == 1
-                    ? AppColors.background
-                    : const Color.fromARGB(0, 77, 14, 14),
-                child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/transaction.svg', width: 18,),
-                  title: Text(
-                    AppTexts.menuTransaction,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: _selectedItemIndex == 1
-                          ? AppColors.textColorBlack
-                          : Colors.black.withOpacity(0.6),
-                          fontWeight: FontWeight.bold
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _selectedItemIndex = 1;
-                      widget.onItemSelected(GestionAgentsPage());
-                    });
-                  },
-                  selected: _selectedItemIndex == 1,
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 2),
-                color: _selectedItemIndex == 2
-                    ? AppColors.background
-                    : const Color.fromARGB(0, 77, 14, 14),
-                child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/logout2.svg', width: 20),
-                  title: Text(
-                    AppTexts.menuHistorique,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: _selectedItemIndex == 2
-                          ? AppColors.textColorBlack
-                          : Colors.black.withOpacity(0.6),
-                          fontWeight: FontWeight.bold
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _selectedItemIndex = 2;
-                      widget.onItemSelected(LoginAdmin());
-                    });
-                  },
-                  selected: _selectedItemIndex == 2,
-                ),
-              ),
+              // Container(
+              //   color: _selectedItemIndex == 1
+              //       ? AppColors.background
+              //       : const Color.fromARGB(0, 77, 14, 14),
+              //   child: ListTile(
+              //     leading: SvgPicture.asset('assets/icons/transaction.svg', width: 18,),
+              //     title: Text(
+              //       AppTexts.menuTransaction,
+              //       style: TextStyle(
+              //         fontSize: 18,
+              //         color: _selectedItemIndex == 1
+              //             ? AppColors.textColorBlack
+              //             : Colors.black.withOpacity(0.6),
+              //             fontWeight: FontWeight.bold
+              //       ),
+              //     ),
+              //     onTap: () {
+              //       setState(() {
+              //         _selectedItemIndex = 1;
+              //         widget.onItemSelected(GestionAgentsPage());
+              //       });
+              //     },
+              //     selected: _selectedItemIndex == 1,
+              //   ),
+              // ),
+              // Container(
+              //   margin: EdgeInsets.only(left: 2),
+              //   color: _selectedItemIndex == 2
+              //       ? AppColors.background
+              //       : const Color.fromARGB(0, 77, 14, 14),
+              //   child: ListTile(
+              //     leading: SvgPicture.asset('assets/icons/logout2.svg', width: 20),
+              //     title: Text(
+              //       AppTexts.menuHistorique,
+              //       style: TextStyle(
+              //         fontSize: 18,
+              //         color: _selectedItemIndex == 2
+              //             ? AppColors.textColorBlack
+              //             : Colors.black.withOpacity(0.6),
+              //             fontWeight: FontWeight.bold
+              //       ),
+              //     ),
+              //     onTap: () {
+              //       setState(() {
+              //         _selectedItemIndex = 2;
+              //         widget.onItemSelected(LoginAdmin());
+              //       });
+              //     },
+              //     selected: _selectedItemIndex == 2,
+              //   ),
+              // ),
+            
             ],
           ),
         ),

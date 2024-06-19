@@ -45,11 +45,7 @@ class _SideMenuState extends State<SideMenu> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        "assets/images/logo.png",
-                        height: 136, // Spécifiez la largeur souhaitée
-                        // Flutter ajustera la hauteur pour maintenir les proportions
-                      ),
+                       Image.asset('assets/images/logo.png', width: 180,),
                     ],
                   ),
                 ),
@@ -105,32 +101,7 @@ class _SideMenuState extends State<SideMenu> {
                   selected: _selectedItemIndex == 1,
                 ),
               ),
-              Container(
-                margin: EdgeInsets.only(left: 2),
-                color: _selectedItemIndex == 2
-                    ? AppColors.background
-                    : const Color.fromARGB(0, 77, 14, 14),
-                child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/logout2.svg', width: 20),
-                  title: Text(
-                    AppTexts.logout,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: _selectedItemIndex == 2
-                          ? AppColors.textColorBlack
-                          : Colors.black.withOpacity(0.6),
-                          fontWeight: FontWeight.bold
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _selectedItemIndex = 2;
-                      widget.onItemSelected(LoginAdmin());
-                    });
-                  },
-                  selected: _selectedItemIndex == 2,
-                ),
-              ),
+             
             ],
           ),
         ),

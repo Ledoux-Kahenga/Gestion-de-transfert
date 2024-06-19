@@ -11,7 +11,7 @@ class AppTexts {
   static const agent = "Agents";
   static const lacolombe = "La colombe";
   static const superAdmin = "Super Admin";
-  static const menuHome = "Home";
+  static const menuHome = "Tableau de bord";
   static const menuTransaction = "Transactions";
   static const menuHistorique = "Historiques";
   static const menuAddPost = "Add Post";

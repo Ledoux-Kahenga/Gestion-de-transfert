@@ -45,8 +45,8 @@ class _LoginFormState extends State<LoginForm> {
 
   //     if (userCredential.user != null) {
   //       if (isUserAdmin(userCredential.user!)) {
-  //         Navigator.of(context).pushReplacement(
-  //           MaterialPageRoute(builder: (context) => MainScreen()),
+          // Navigator.of(context).pushReplacement(
+          //   MaterialPageRoute(builder: (context) => MainScreen()),
   //         );
   //       } else {
   //         ScaffoldMessenger.of(context).showSnackBar(
@@ -94,11 +94,11 @@ class _LoginFormState extends State<LoginForm> {
   // }
 
   // bool isUserAdmin(User user) {
-  //   // Vérifiez si l'utilisateur a un attribut qui indique qu'il est un administrateur
-  //   // Vous pouvez utiliser l'adresse e-mail ou tout autre attribut spécifique à l'administrateur
-  //   // Vérifiez si l'UID de l'utilisateur correspond à l'UID de l'administrateur
-  //   String adminUID =
-  //       'l9AdwfVRqPOS9k8GUl1tG7yEGYr1'; // Remplacez par l'UID de l'administrateur
+
+  //   String adminUID ='nPk5n7AQM1UGWdtgIsuVfiwit3J2'; 
+  //       // E-mail : admin@gmail.com
+  //       // password : 12346
+
   //   return user.uid == adminUID;
   // }
 
@@ -160,7 +160,7 @@ class _LoginFormState extends State<LoginForm> {
 
   Widget _getTitle() {
     return const Text(
-      AppTexts.login,
+      'Admin',
       style: TextStyle(
         color: Colors.black,
         fontWeight: FontWeight.bold,

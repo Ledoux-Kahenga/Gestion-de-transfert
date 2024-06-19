@@ -50,15 +50,14 @@ class MyApp extends StatelessWidget {
           ),
         ],
         child: LoginAgent(),
-        // child: DashboardScreen(),
       ),
 
-  //      initialRoute: '/',
-  // routes: {
-  //   '/': (context) => LoginAdmin(), // Route par défaut
-  //   '/admin': (context) => AdminModule(), // Route pour le module administrateur
-  //   '/agent': (context) => AgentModule(), // Route pour le module agent de transfert
-  // },
+       initialRoute: 'agent',
+  routes: {
+    'agent': (context) => LoginAgent(), // Route par défaut
+    'admin': (context) => LoginAdmin(), // Route pour le module administrateur
+    
+  },
 
     );
   }
