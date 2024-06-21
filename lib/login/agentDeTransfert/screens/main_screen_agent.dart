@@ -10,7 +10,8 @@ class MainScreenAgent extends StatefulWidget {
    late String agenceNom;
    late String nom;
    late String agenceId;
-    MainScreenAgent({required this.agenceNom, required this.nom, required this.agenceId});
+   late String password;
+    MainScreenAgent({required this.agenceNom, required this.nom, required this.agenceId, required this.password});
 
     // late Widget widget;
 
@@ -32,7 +33,7 @@ class _MainScreenAgentState extends State<MainScreenAgent> {
   @override
   void initState() {
     super.initState();
-    _currentPage = DashboardAgentScreen(agenceNom: widget.agenceNom, nom: widget.nom, agenceId: widget.agenceId,);
+    _currentPage = DashboardAgentScreen(agenceNom: widget.agenceNom, nom: widget.nom, agenceId: widget.agenceId,password: widget.password);
     menuAppController =
         MenuAppController(); // Initialisation de menuAppController
         

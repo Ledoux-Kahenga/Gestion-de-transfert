@@ -71,23 +71,92 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
           ),
         ],
       ),
+      // content: FutureBuilder<QuerySnapshot<Object?>>(
+        
+      //   future: _transfersFuture,
+      //   builder: (context, snapshot) {
 
-      content: FutureBuilder<QuerySnapshot>(
+          // final documents = snapshot.data?.docs ?? [];
+
+          // final filteredTransfers = documents
+          //     .where((doc) =>
+          //         doc['destinationAgencyName'] == widget.agenceNom &&
+          //         doc['statusTransfert'] == 'En cours')
+          //     .toList();
+              
+          // if (snapshot.connectionState == ConnectionState.waiting) {
+          //   return Container(
+          //     height: newHeight,
+          //     width: newWidth,
+          //   );
+          // }
+
+          // if (snapshot.hasError) {
+          //   return Container(
+          //     height: newHeight,
+          //     width: newWidth,
+          //     child: Text(
+          //       'Erreur: ${snapshot.error}',
+          //       style: TextStyle(color: Colors.red),
+          //     ),
+          //   );
+          // }
+
+          
+
+          // if (filteredTransfers.isEmpty) {
+          //   return Container(
+          //     height: newHeight,
+          //     width: newWidth,
+          //     child: Column(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         Container(
+          //           height: 230,
+          //           padding: EdgeInsets.all(32),
+          //           child: Image.asset('assets/images/boxvide.png'),
+          //           decoration: BoxDecoration(
+          //             color: Colors.grey.withOpacity(0.2),
+          //             shape: BoxShape.circle,
+          //           ),
+          //         ),
+          //         SizedBox(height: 70),
+          //         Text("LA BOITE DE RECEPTION EST VIDE"),
+          //       ],
+          //     ),
+          //   );
+          // }
+
+      //     // Filtrer les transferts pour ne garder que ceux destinés à l'agence courante
+          
+
+      //     return Container(
+      //       height: newHeight,
+      //       width: newWidth,
+      //       child: ListView.builder(
+      //         itemCount: filteredTransfers.length,
+      //         itemBuilder: (context, index) {
+      //           final transfer = filteredTransfers[index];
+      //           return Column(
+      //             children: [
+      //               Divider(),
+      //               ListTile(
+      //                   // ... (reste du code)
+      //                   ),
+      //               Divider()
+      //             ],
+      //           );
+      //         },
+      //       ),
+      //     );
+      //   },
+      // ),
+      
+       content: FutureBuilder<QuerySnapshot>(
         future: _transfersFuture,
         builder: (context, snapshot) {
-          final documents = snapshot.data?.docs ?? [];
-
-          final filteredTransfers = documents
-              .where((doc) =>
-                  doc['destinationAgencyName'] == widget.agenceNom &&
-                  doc['statusTransfert'] == 'En cours')
-              .toList();
-
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Container(
-              height: newHeight,
-              width: newWidth,
-            );
+            return Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -100,8 +169,7 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
               ),
             );
           }
-
-          if (filteredTransfers.isEmpty) {
+          if (snapshot.hasData && snapshot.data!.docs.isEmpty) {
             return Container(
               height: newHeight,
               width: newWidth,
@@ -113,16 +181,32 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
                     padding: EdgeInsets.all(32),
                     child: Image.asset('assets/images/boxvide.png'),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                    ),
+                        color: Colors.grey.withOpacity(0.2),
+                        shape: BoxShape.circle),
                   ),
-                  SizedBox(height: 70),
-                  Text("LA BOITE DE RECEPTION EST VIDE"),
+                  SizedBox(
+                    height: 70,
+                  ),
+                  Text("LA BOITE DE RECEPTION EST VIDE")
                 ],
               ),
             );
-          }
+          } else if (snapshot.hasError) {
+            return Container(
+              height: newHeight,
+              width: newWidth,
+              child: Text(
+                'Erreur: ${snapshot.error}',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          } else {
+            // Filtrer les transferts pour ne garder que ceux destinés à l'agence courante
+            List<DocumentSnapshot> filteredTransfers = snapshot.data!.docs
+                .where((doc) =>
+                    doc['destinationAgencyName'] == widget.agenceNom &&
+                    doc['statusTransfert'] == 'En cours')
+                .toList();
 
             return Container(
               height: newHeight,
@@ -144,7 +228,7 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              
+                              // Text(''),
                             ],
                           ),
                           subtitle: Column(
@@ -203,10 +287,11 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
                 },
               ),
             );
-          
+          }
         },
       ),
-
+     
+      
       actions: <Widget>[
         TextButton(
           style: TextButton.styleFrom(
@@ -232,15 +317,106 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
     );
   }
 
+  // Future<void> retirerFond(
+  //     BuildContext context, String passWord, String transferId) async {
+  //   // String psw = passeWordAgent.text;
+
+  //   TextFormField(
+  //     controller: passeWordAgent,
+  //     decoration: InputDecoration(
+  //       fillColor: const Color(0xffF6F8FB).withOpacity(0.5),
+  //       filled: true,
+  //       border: const OutlineInputBorder(),
+  //       label: Text(
+  //         "ADRESSE",
+  //         style: const TextStyle(color: Colors.black87),
+  //       ),
+  //       suffixIcon: Icon(Icons.room),
+  //     ),
+  //     validator: (value) {
+  //       if (value!.isEmpty) {
+  //         return 'Ce champ est requis';
+  //       }
+  //       return null;
+  //     },
+  //   );
+
+  //   if (passeWordAgent.text == passWord) {
+  //     // Mots de passe ne correspondent pas
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text('Erreur'),
+  //           content: Text('Le mot de passe saisi ne correspond pas.'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               },
+  //               child: Text('OK'),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //     return;
+
+  //   }
+
+  //   try {
+  //     // Mettre à jour le statut du transfert dans Firestore
+  //     await FirebaseFirestore.instance
+  //         .collection('transfers').doc(transferId)
+  //         .update({'statusTransfert': "Retirer"});
+
+  //     // Fermer la boîte de dialogue
+  //     Navigator.of(context).pop();
+
+  //     // Afficher un message de succès
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text('Succès'),
+  //           content: Text('Le transfert a été retiré avec succès.'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               },
+  //               child: Text('OK'),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   } catch (e) {
+  //     // Afficher un message d'erreur
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text('Erreur'),
+  //           content: Text(
+  //               'Une erreur est survenue lors du retrait du transfert: $e'),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               },
+  //               child: Text('OK'),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
+  //   }
+  // }
+
   Future<void> retirerFond(
       BuildContext context, String passWord, String transferId) async {
     String? enteredPassword = await _promptForPassword(context);
-
-    DateTime temps = DateTime.now();
-      String date =
-          '${temps.year}-${temps.month.toString().padLeft(2, '0')}-${temps.day.toString().padLeft(2, '0')}';
-      String heure =
-          '${temps.hour.toString().padLeft(2, '0')}:${temps.minute.toString().padLeft(2, '0')}:${temps.second.toString().padLeft(2, '0')}';
 
     if (enteredPassword == null) {
       // User canceled the operation
@@ -251,15 +427,7 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
       await FirebaseFirestore.instance
           .collection('transfers')
           .doc(transferId)
-          .update({'statusTransfert': "Retirer", 'dateRetrait': date, 'heureRetrait': heure});
-
-          // await FirebaseFirestore.instance
-          // .collection('transfers')
-          // .doc(transferId)
-          // .update({'dateRetrait': date, 'heureRetrait': heure});
-
-           Navigator.pop(context);
-           
+          .update({'statusTransfert': "Retirer"});
       await _showMessageSuccusful();
     } else {
       // Incorrect password, inform the user and ask again

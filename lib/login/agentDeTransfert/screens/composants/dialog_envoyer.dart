@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +8,13 @@ class DialogEnvoyer extends StatefulWidget {
   late String agenceNom;
   late String nom;
   late String agenceId;
+  late String password;
 
   DialogEnvoyer(
-      {required this.agenceNom, required this.nom, required this.agenceId});
+      {required this.agenceNom,
+      required this.nom,
+      required this.agenceId,
+      required this.password});
 
   @override
   _DialogEnvoyerState createState() => _DialogEnvoyerState();
@@ -22,6 +28,7 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
   String? _selectedAgenceId;
   String? _selectedAgenceNom;
 
+
   late CollectionReference _agencesRef;
   late Stream<QuerySnapshot> _agencesStream;
 
@@ -33,10 +40,22 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
         _agencesRef.where('estAttribuee', isEqualTo: true).snapshots();
   }
 
+  String generateStrongPassword(int length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  Random random = Random();
+  String password = '';
+  for (int i = 0; i < length; i++) {
+    password += characters[random.nextInt(characters.length)];
+  }
+  return password;
+}
+
   String origineAgencyId() {
     return widget.agenceId;
   }
 
+  
+  
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -80,7 +99,7 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               TextFormField(
                 controller: _nomController,
-                decoration: _getInputDecoration1("NOM DU BENEFICIAIRE"),
+                decoration: _getInputDecoration1("NOM COMPLET DU BENEFICIAIRE"),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer un nom';
@@ -88,22 +107,65 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
                   return null;
                 },
               ),
+             
               SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                decoration: _getInputDecoration2("CODE DE RETRAIT"),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer un mot de passe';
-                  }
-                  return null;
-                },
-              ),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: TextFormField(
+                        controller: _passwordController,
+                        decoration: _getInputDecoration2("CODE DE RETRAIT"),
+                        enabled: false,
+                        obscureText: false,
+                        keyboardType: TextInputType.number, 
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer un code de retrait';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        margin: EdgeInsets.only(left: 6),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white, // Couleur du texte
+                            backgroundColor: Colors.blue[400], // Couleur de fond
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 24), // Espacement du texte
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(8), // Coins arrondis
+                            ),
+                          ),
+                          child: Text(
+                            'Generer',
+                            style: TextStyle(
+                              fontSize: 16, 
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                          onPressed: () {
+                            String newPassword = generateStrongPassword(8); // Générer un mot de passe de 10 caractères
+                            _passwordController.text = newPassword;
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                
               SizedBox(height: 16),
               TextFormField(
                 controller: _contactController,
                 decoration: _getInputDecoration3("MONTANT"),
+                keyboardType: TextInputType.number, 
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer un motant';
@@ -157,6 +219,7 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
                   }
                 },
               )
+            
             ]),
           ),
         ),
@@ -184,28 +247,29 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
         ),
         TextButton(
           style: TextButton.styleFrom(
-            foregroundColor: Colors.white, // Couleur du texte
-            backgroundColor: Colors.green, // Couleur de fond
+            foregroundColor: Colors.white, 
+            backgroundColor: Colors.green, 
             padding: EdgeInsets.symmetric(
-                horizontal: 16, vertical: 12), // Espacement du texte
+                horizontal: 16, vertical: 12), 
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18), // Coins arrondis
+              borderRadius: BorderRadius.circular(18), 
             ),
           ),
           child: Text(
-            'Ajouter',
+            'Envoyer',
             style: TextStyle(
-              fontSize: 16, // Taille de la police
+              fontSize: 16, 
             ),
           ),
           onPressed: _selectedAgenceId == null
               ? null
-              : () {
+              : () async {
                   if (_formKey.currentState!.validate()) {
                     transferFunds();
                     print('Agent créé avec succès');
                     Navigator.of(context).pop();
                   }
+                  await _showMessageSuccusful();
                 },
         ),
       ],
@@ -221,42 +285,57 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
       String origineAgencyId = this
           .origineAgencyId(); // Utilisation de la fonction pour obtenir l'ID de l'agence d'origine
       String origineAgencyName = widget.agenceNom;
+      String agentName = widget.nom;
+      String agentPassWord = widget.password;
+
       DateTime temps = DateTime.now();
       String date =
           '${temps.year}-${temps.month.toString().padLeft(2, '0')}-${temps.day.toString().padLeft(2, '0')}';
       String heure =
           '${temps.hour.toString().padLeft(2, '0')}:${temps.minute.toString().padLeft(2, '0')}:${temps.second.toString().padLeft(2, '0')}';
 
-      // Créer une référence de document avec un ID unique
-      DocumentReference docRef =
-          FirebaseFirestore.instance.collection('transfers').doc();
-      String id = docRef.id; // Obtenir l'ID unique généré
+      DocumentSnapshot destinationAgencyDoc = await FirebaseFirestore.instance
+          .collection('agences')
+          .doc(destinationAgencyId)
+          .get();
+      String destinationAgencyName = destinationAgencyDoc.get('nom');
 
-      try {
-        await FirebaseFirestore.instance.collection('transfers').add({
-          'id' : id,
-          'beneficiaryName': beneficiaryName,
-          'codeRetrait': codeRetrait,
-          'montant': montant,
-          'origineAgencyName': origineAgencyName,
-          'destinationAgencyId': destinationAgencyId,
-          'origineAgencyId': origineAgencyId,
-          'date': date,
-          'heure': heure,
-          'temps': temps,
-        });
+      final agentRefe = FirebaseFirestore.instance.collection('transfers').doc();
 
-        // Affichage d'un message de succès et fermeture du dialogue
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Transfert effectué avec succès')));
-        Navigator.of(context).pop();
-      } catch (e) {
-        print('Erreur lors du transfert de fonds: $e');
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Erreur: $e')));
-      }
+      String documentId = agentRefe.id;
+
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('agences')
+        .doc(_selectedAgenceId)
+        .get();
+
+        String agentPasseword = doc.get('agentPasseword');
+
+      agentRefe.set({
+        'id': documentId,
+        'beneficiaryName': beneficiaryName,
+        'codeRetrait': codeRetrait,
+        'montant': montant,
+        'AgentName': agentName,
+        'AgentPassWord': agentPassWord,
+        'origineAgencyName': origineAgencyName,
+        'destinationAgencyName': destinationAgencyName,
+        'destinationAgencyId': destinationAgencyId,
+        'destinationPassewordAgent': agentPasseword,
+        'origineAgencyId': origineAgencyId,
+        'statusTransfert': "En cours",
+        'date': date,
+        'heure': heure,
+        'temps': temps,
+      }).then((value) {
+        
+      }).catchError((error) {
+        print('Erreur lors de la création de l\'agent: $error');
+      });
     }
   }
+
+  
 
   InputDecoration _getInputDecoration1(String hints) {
     return InputDecoration(
@@ -308,4 +387,24 @@ class _DialogEnvoyerState extends State<DialogEnvoyer> {
       ),
     );
   }
+
+
+  Future<void> _showMessageSuccusful() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('Succès'),
+        content: Text('Le Transfert a reussi.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); 
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
 }

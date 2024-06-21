@@ -76,9 +76,10 @@ class _LoginFormState extends State<LoginForm> {
       final agenceNom = userDocument.data()['agenceNom']; 
       final nom = userDocument.data()['nom']; 
       final agenceId = userDocument.data()['agenceId']; 
+      final password = userDocument.data()['password']; 
      
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MainScreenAgent(agenceNom: agenceNom, nom: nom, agenceId: agenceId)));
+          MaterialPageRoute(builder: (context) => MainScreenAgent(agenceNom: agenceNom, nom: nom, agenceId: agenceId, password: password)));
     } else {
       print('Mot de passe incorrect.');
       showDialog(

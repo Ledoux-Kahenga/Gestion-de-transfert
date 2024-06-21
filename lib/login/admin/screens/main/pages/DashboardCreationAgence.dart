@@ -149,7 +149,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   margin: EdgeInsets.only(left: 8, top: 8, right: 8),
                   child: Header(),
                 ),
-                
                 Expanded(
                   child: Container(
                     margin: EdgeInsets.all(8),
@@ -161,7 +160,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('agences')
-                          .orderBy('idAgence', descending: false)
+                          .orderBy('dateCreationAgence', descending: false)
                           .snapshots(),
                       builder: (BuildContext context,
                           AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -171,7 +170,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return CircularProgressIndicator();
+                          return Center();
                         }
 
                         List<Map<String, dynamic>> rowsData;
@@ -180,13 +179,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           rowsData = snapshot.data!.docs.map((doc) {
                             return {
                               // 'id': int.parse(doc.id), // Convertir l'ID en entier
-                              'idAgence': doc.get('idAgence'),
+                              'dateCreationAgence': doc.get('dateCreationAgence'),
                               // Utilisez doc.id pour obtenir l'ID du document
                               'nom': doc.get('nom'),
                               // Corrigez le nom du champ ici
                               'ville': doc.get('ville'),
                               'province': doc.get('province'),
-                              'adresse': doc.get('adresse')
+                              'adresse': doc.get('adresse'),
+                              'agentName': doc.get('agentName')
                             };
                           }).toList();
                         } else {
@@ -220,13 +220,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             fontWeight: FontWeight.bold)),
                                   ),
                                   //  size: ColumnSize.S,
-                                  fixedWidth: 45,
+                                  fixedWidth: 44,
                                 ),
                                 DataColumn2(
                                     label: Text('NOM DE L\' AGENCE',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
-                                    size: ColumnSize.M),
+                                    size: ColumnSize.L),
                                 DataColumn2(
                                     label: Text('PROVINCE',
                                         style: TextStyle(
@@ -236,9 +236,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     label: Text('VILLE OU AUTRE',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
+                                    size: ColumnSize.M),
+                                    DataColumn2(
+                                    label: Text('AGENT DE TRANSFERT',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
                                     size: ColumnSize.L),
                                 DataColumn2(
-                                    label: Text('ADRESSE DE L\'AGENCE',
+                                    label: Text('ADRESSE',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     size: ColumnSize.M),
@@ -251,18 +256,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   fixedWidth: 80,
                                 ),
                               ],
-                              rows: rowsData
-                                  .map((row) => DataRow(
+                              rows: List.generate(
+                                  rowsData.length,
+                                  (index) => DataRow(
 
                                           // color: MaterialStateColor.resolveWith((states) => AppColors.background),
                                           cells: [
                                             DataCell(Center(
-                                                child: Text(row['idAgence']
-                                                    .toString()))),
-                                            DataCell(Text(row['nom'])),
-                                            DataCell(Text(row['province'])),
-                                            DataCell(Text(row['ville'])),
-                                            DataCell(Text(row['adresse'])),
+                                                child: Text(
+                                                    (index + 1).toString()))),
+                                            DataCell(
+                                                Text(rowsData[index]['nom'])),
+                                            DataCell(Text(
+                                                rowsData[index]['province'])),
+                                            DataCell(
+                                                Text(rowsData[index]['ville'])),
+                                                DataCell(
+                                                Text(rowsData[index]['agentName'])),
+                                            DataCell(Text(
+                                                rowsData[index]['adresse'])),
                                             DataCell(
                                               Center(
                                                 child: IconButton(
@@ -271,24 +283,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         color: Colors.grey),
                                                   ),
                                                   onPressed: () {
-                                                    // showDialog(
-                                                    //   context: context,
-                                                    //   builder: (context) {
-                                                    //     return DialogOption(
-                                                    //       province: 'Équateur',
-                                                    //       ville: 'Mbandaka',
-                                                    //       adresse:
-                                                    //           '123 Rue de la Paix',
-                                                    //     );
-                                                    //   },
-                                                    // );
-                                                    _showAgenceDetails(row);
+                                                   _showAgenceDetails(rowsData[index]);
                                                   },
                                                 ),
                                               ),
                                             ),
-                                          ]))
-                                  .toList(),
+                                          ])).toList(),
                             ),
                           ),
                         );

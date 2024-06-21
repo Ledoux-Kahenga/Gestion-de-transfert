@@ -12,7 +12,6 @@ import 'package:data_table_2/data_table_2.dart';
 class GestionAgentsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         double screenHeight = constraints.maxHeight;
@@ -27,15 +26,14 @@ class GestionAgentsPage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Container(
-                    margin: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors
-                          .white, // Remplacez ceci par la couleur que vous souhaitez
-                      // Optionnel : pour donner des coins arrondis
+                    margin: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
                     ),
                     child: StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
-                          .collection('agents').orderBy('idAgent', descending: false)
+                          .collection('agents')
+                          .orderBy('dateCreationAgent', descending: false)
                           .snapshots(),
                       builder: (BuildContext context,
                           AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -45,7 +43,7 @@ class GestionAgentsPage extends StatelessWidget {
 
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return CircularProgressIndicator();
+                          return Center();
                         }
 
                         List<Map<String, dynamic>> rowsData;
@@ -56,7 +54,7 @@ class GestionAgentsPage extends StatelessWidget {
                               // 'id': int.parse(doc.id), // Convertir l'ID en entier
                               // 'id': doc.get('id'),
                               // Utilisez doc.id pour obtenir l'ID du document
-                              'idAgent': doc.get('idAgent'),
+                              'dateCreationAgent': doc.get('dateCreationAgent'),
                               'nom': doc.get('nom'),
                               // Corrigez le nom du champ ici
                               'password': doc.get('password'),
@@ -69,78 +67,81 @@ class GestionAgentsPage extends StatelessWidget {
                         }
 
                         return SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxHeight: dashboardHeight,
-                            ),
-
-                            // child: Padding(
-                            //   padding: const EdgeInsets.all(8.0),
-                            child: DataTable2(
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: AppColors.background1),
+                            scrollDirection: Axis.vertical,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight: dashboardHeight,
                               ),
-                              // minWidth: 600,
-                              headingRowColor:
-                                  MaterialStateProperty.resolveWith(
-                                      (states) => AppColors.customColor),
-                              // horizontalMargin: 12,
-                              columns: const <DataColumn>[
-                                DataColumn2(
-                                  label: Center(
-                                    child: Text('ID',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                  //  size: ColumnSize.S,
-                                  fixedWidth: 45,
-                                ),
-                                DataColumn2(
-                                    label: Text('NOM DE L\' AGENT',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    size: ColumnSize.M),
-                                DataColumn2(
-                                    label: Text('MOT DE PASSE',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    size: ColumnSize.M),
-                                // DataColumn2(
-                                //     label:  Text(
-                                //           'AGENCE',
-                                //           style: TextStyle(
-                                //               fontWeight: FontWeight.bold)),
-                                //     size: ColumnSize.L),
-                                DataColumn2(
-                                    label: Text('AGENCE',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    size: ColumnSize.M),
-                                DataColumn2(
-                                    label: Text('CONTACT',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    size: ColumnSize.M),
-                              ],
-                              rows: rowsData
-                                  .map((row) => DataRow(
 
-                                          // color: MaterialStateColor.resolveWith((states) => AppColors.background),
-                                          cells: [
-                                            DataCell(Center(
-                                                child: Text(
-                                                    row['idAgent'].toString()))),
-                                            DataCell(Text(row['nom'])),
-                                            DataCell(Text(row['password'])),
-                                            DataCell(Text(row['agenceNom'])),
-                                            DataCell(Text(row['contact']))
-                                          ]))
-                                  .toList(),
-                            ),
-                          ),
-                        );
+                              // child: Padding(
+                              //   padding: const EdgeInsets.all(8.0),
+                              child: DataTable2(
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: AppColors.background1),
+                                ),
+                                // minWidth: 600,
+                                headingRowColor:
+                                    MaterialStateProperty.resolveWith(
+                                        (states) => AppColors.customColor),
+                                // horizontalMargin: 12,
+                                columns: const <DataColumn>[
+                                  DataColumn2(
+                                    label: Center(
+                                      child: Text('ID',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                    //  size: ColumnSize.S,
+                                    fixedWidth: 45,
+                                  ),
+                                  DataColumn2(
+                                      label: Text('NOM DE L\' AGENT',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      size: ColumnSize.M),
+                                  DataColumn2(
+                                      label: Text('MOT DE PASSE',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      size: ColumnSize.M),
+                                  // DataColumn2(
+                                  //     label:  Text(
+                                  //           'AGENCE',
+                                  //           style: TextStyle(
+                                  //               fontWeight: FontWeight.bold)),
+                                  //     size: ColumnSize.L),
+                                  DataColumn2(
+                                      label: Text('AGENCE DE TRANSFERT',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      size: ColumnSize.M),
+                                  DataColumn2(
+                                      label: Text('CONTACT',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      size: ColumnSize.M),
+                                ],
+                                rows: List.generate(
+                                    rowsData.length,
+                                    (index) => DataRow(
+
+                                            // color: MaterialStateColor.resolveWith((states) => AppColors.background),
+                                            cells: [
+                                              DataCell(Center(
+                                                  child: Text(
+                                                      (index + 1).toString()))),
+                                              DataCell(
+                                                  Text(rowsData[index]['nom'])),
+                                              DataCell(Text(
+                                                  rowsData[index]['password'])),
+                                              DataCell(Text(rowsData[index]
+                                                  ['agenceNom'])),
+                                              DataCell(Text(
+                                                  rowsData[index]['contact'])),
+                                            ])),
+                              ),
+                            ));
                       },
                     ),
                   ),

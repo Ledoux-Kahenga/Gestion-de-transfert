@@ -4,25 +4,43 @@ import 'package:agence_transfert/login/admin/screens/main/composants/agenceDialo
 import 'package:agence_transfert/login/admin/screens/main/composants/dialog_agent.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/composants/dialog_envoyer.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/composants/dialog_recevoir.dart';
+import 'package:agence_transfert/login/agentDeTransfert/screens/composants/dialog_transactions.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/composants/footerAgent.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/composants/header_home_Agent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:agence_transfert/constants.dart';
 import 'package:agence_transfert/login/admin/screens/main/composants/header_home.dart';
+import 'package:intl/intl.dart';
 
 class DashboardAgentScreen extends StatefulWidget {
   late String agenceNom;
   late String nom;
   late String agenceId;
+  late String password;
 
-  DashboardAgentScreen({required this.agenceNom, required this.nom, required this.agenceId});
+  DashboardAgentScreen(
+      {required this.agenceNom,
+      required this.nom,
+      required this.agenceId,
+      required this.password});
 
   @override
   _DashboardAgentScreenState createState() => _DashboardAgentScreenState();
 }
 
 class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
+  int? _selectedSegment;
+  late Future<QuerySnapshot> _transfersFuture;
+
+  @override
+  void initState() {
+    _transfersFuture = FirebaseFirestore.instance.collection('transfers').get();
+    super.initState();
+    _selectedSegment = 0;
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -88,10 +106,8 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
               Container(
                 margin: EdgeInsets.only(left: 8, top: 8, right: 8),
                 child: Row(
-
                   children: [
                     Column(
-
                       children: [
                         Card(
                           color: Colors.white,
@@ -140,6 +156,7 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                             agenceNom: widget.agenceNom,
                                             nom: widget.nom,
                                             agenceId: widget.agenceId,
+                                            password: widget.password,
                                           );
                                         });
                                   },
@@ -171,53 +188,19 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                 ),
                               ),
                             ),
-                            Container(
-                              height: 200,
-                              width: 200,
-                              child: Card(
-                                color: Colors.white,
-                                surfaceTintColor: Colors.transparent,
-                                shadowColor: Color.fromARGB(255, 243, 220, 204),
-                                elevation: 4,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2),
-                                    // border: Border.all(color: Colors.blue, width: 2),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/transactions.png',
-                                        height: 100.0,
-                                        width: 100.0,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Text(
-                                        "Transactions",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: AppColors.textColorBlack,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                           GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return DialogRecevoir(
-                                            agenceNom: widget.agenceNom,
-                                            nom: widget.nom,
-                                            agenceId: widget.agenceId,
-                                          );
-                                        });
-                                  },
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return DialogTransaction(
+                                        agenceNom: widget.agenceNom,
+                                        nom: widget.nom,
+                                        agenceId: widget.agenceId,
+                                        password: widget.password,
+                                      );
+                                    });
+                              },
                               child: Container(
                                 height: 200,
                                 width: 200,
@@ -225,6 +208,56 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                   color: Colors.white,
                                   surfaceTintColor: Colors.transparent,
                                   shadowColor: Color.fromARGB(255, 243, 220, 204),
+                                  elevation: 4,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(2),
+                                      // border: Border.all(color: Colors.blue, width: 2),
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/transactions.png',
+                                          height: 100.0,
+                                          width: 100.0,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Text(
+                                          "Transactions",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: AppColors.textColorBlack,
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return DialogRecevoir(
+                                        agenceNom: widget.agenceNom,
+                                        nom: widget.nom,
+                                        agenceId: widget.agenceId,
+                                        password: widget.password,
+                                      );
+                                    });
+                              },
+                              child: Container(
+                                height: 200,
+                                width: 200,
+                                child: Card(
+                                  color: Colors.white,
+                                  surfaceTintColor: Colors.transparent,
+                                  shadowColor:
+                                      Color.fromARGB(255, 243, 220, 204),
                                   elevation: 4,
                                   child: Container(
                                     decoration: BoxDecoration(
@@ -370,7 +403,7 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                     Container(
                       height: 510,
                       width: 460.200,
-                      child: const Card(
+                      child: Card(
                         color: Colors.white,
                         surfaceTintColor: Colors.transparent,
                         shadowColor: Color.fromARGB(255, 243, 220, 204),
@@ -387,11 +420,52 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                 textAlign: TextAlign.center,
                               ),
                               Divider(),
+                              Container(
+                                height: 420,
+                                child: Column(
+                                  children: [
+                                    Center(
+                                      child: Container(
+                                        height: 420,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            CupertinoSlidingSegmentedControl<
+                                                int>(
+                                              children: {
+                                                0: Text('Tous'),
+                                                1: Text('Envoyés'),
+                                                2: Text('Retirés'),
+                                              },
+                                              groupValue: _selectedSegment,
+                                              onValueChanged: (int? value) {
+                                                setState(() {
+                                                  _selectedSegment = value;
+                                                });
+                                              },
+                                            ),
+                                            // SizedBox(height: 20),
+                                            Flexible(
+                                              fit: FlexFit.loose,
+                                              // Utilisez Expanded pour que le contenu prenne tout l'espace restant
+                                              child:
+                                                  _getContentBasedOnSegment(), // Appelez la méthode ici
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            
                             ],
                           ),
                         ),
                       ),
                     )
+                 
                   ],
                 ),
               ),
@@ -405,4 +479,438 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
       },
     );
   }
+
+  Widget _getContentBasedOnSegment() {
+    switch (_selectedSegment) {
+      case 0:
+        return Container(
+            child: FutureBuilder<QuerySnapshot>(
+          future: _transfersFuture,
+          builder: (context, snapshot) {
+            final documents = snapshot.data?.docs ?? [];
+
+            final filteredTransfers = documents
+                .where((doc) =>
+                    (doc['destinationAgencyName'] == widget.agenceNom ||
+                    doc['statusTransfert'] == 'En cours' ) &&
+                    (doc['statusTransfert'] == 'Retirer' ||
+                    doc['origineAgencyName'] == widget.agenceNom))
+                .toList(); 
+
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+
+            return ListView.builder(
+              itemCount: filteredTransfers.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot transfer = filteredTransfers[index];
+                return Column(
+                  children: [
+                    Divider(),
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            Text(
+                              'De: ${transfer['origineAgencyName']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            )
+                          else
+                            Text(
+                              'À: ${transfer['destinationAgencyName']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Beneficiaire: ${transfer['beneficiaryName']}'),
+                          Text('Code de retrait: ${transfer['codeRetrait']}'),
+                          Text('Montant: ${transfer['montant']}'),
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                    style: TextStyle(fontSize: 14)),
+                                Text(
+                                    'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                    style: TextStyle(fontSize: 14)),
+                                    //  Icon(Icons.arrow_right, size: 16.0),
+                              ],
+                            )
+                          else 
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Text(
+                                'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                style: const TextStyle(fontSize: 14)),
+                                // Icon(Icons.arrow_left, size: 16.0),
+                                ]
+                                )
+                          
+                        ],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.green[300],
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text(
+                                'Déjà Retiré',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              onPressed: () async {
+                                // String id = transfer['id'];
+                                // String passeword =
+                                //     transfer['destinationPassewordAgent'];
+                                // retirerFond(context, passeword, id);
+                                // print(passeword + " contre" + id);
+                              },
+                            )
+                          else
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.blue[300],
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text(
+                                'En cours',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              onPressed: () async {
+                                // String id = transfer['id'];
+                                // String passeword =
+                                //     transfer['destinationPassewordAgent'];
+                                // retirerFond(context, passeword, id);
+                                // print(passeword + " contre" + id);
+                              },
+                            )
+                        ],
+                      ),
+                    ),
+                    Divider()
+                  ],
+                );
+              },
+            );
+          },
+        ));
+     
+      case 1:
+       return Container(
+            child: FutureBuilder<QuerySnapshot>(
+          future: _transfersFuture,
+          builder: (context, snapshot) {
+            final documents = snapshot.data?.docs ?? [];
+
+            final filteredTransfers = documents
+                .where((doc) =>
+                    doc['origineAgencyName'] == widget.agenceNom &&
+                    doc['statusTransfert'] == 'En cours' )
+                .toList();
+
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+
+            return ListView.builder(
+              itemCount: filteredTransfers.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot transfer = filteredTransfers[index];
+                return Column(
+                  children: [
+                    Divider(),
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            Text(
+                              'De: ${transfer['origineAgencyName']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            )
+                          else
+                            Text(
+                              'À: ${transfer['destinationAgencyName']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Beneficiaire: ${transfer['beneficiaryName']}'),
+                          Text('Code de retrait: ${transfer['codeRetrait']}'),
+                          Text('Montant: ${transfer['montant']}'),
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                    style: TextStyle(fontSize: 14)),
+                                Text(
+                                    'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                    style: TextStyle(fontSize: 14)),
+                                    //  Icon(Icons.arrow_right, size: 16.0),
+                              ],
+                            )
+                          else 
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Text(
+                                'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                style: const TextStyle(fontSize: 14)),
+                                // Icon(Icons.arrow_left, size: 16.0),
+                                ]
+                                )
+                          
+                        ],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.green[300],
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text(
+                                'Déjà Retiré',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              onPressed: () async {
+                                // String id = transfer['id'];
+                                // String passeword =
+                                //     transfer['destinationPassewordAgent'];
+                                // retirerFond(context, passeword, id);
+                                // print(passeword + " contre" + id);
+                              },
+                            )
+                          else
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.blue[300],
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text(
+                                'En cours',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              onPressed: () async {
+                                // String id = transfer['id'];
+                                // String passeword =
+                                //     transfer['destinationPassewordAgent'];
+                                // retirerFond(context, passeword, id);
+                                // print(passeword + " contre" + id);
+                              },
+                            )
+                        ],
+                      ),
+                    ),
+                    Divider()
+                  ],
+                );
+              },
+            );
+          },
+        ));
+     
+      case 2:
+       return Container(
+            child: FutureBuilder<QuerySnapshot>(
+          future: _transfersFuture,
+          builder: (context, snapshot) {
+            final documents = snapshot.data?.docs ?? [];
+
+            final filteredTransfers = documents
+                .where((doc) =>
+                    doc['destinationAgencyName'] == widget.agenceNom &&
+                    doc['statusTransfert'] == 'Retirer' )
+                .toList();
+
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+
+            return ListView.builder(
+              itemCount: filteredTransfers.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot transfer = filteredTransfers[index];
+                return Column(
+                  children: [
+                    Divider(),
+                    ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            Text(
+                              'De: ${transfer['origineAgencyName']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            )
+                          else
+                            Text(
+                              'À: ${transfer['destinationAgencyName']}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Beneficiaire: ${transfer['beneficiaryName']}'),
+                          Text('Code de retrait: ${transfer['codeRetrait']}'),
+                          Text('Montant: ${transfer['montant']}'),
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                    style: TextStyle(fontSize: 14)),
+                                Text(
+                                    'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                    style: TextStyle(fontSize: 14)),
+                                    //  Icon(Icons.arrow_right, size: 16.0),
+                              ],
+                            )
+                          else 
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                            Text(
+                                'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                style: const TextStyle(fontSize: 14)),
+                                // Icon(Icons.arrow_left, size: 16.0),
+                                ]
+                                )
+                          
+                        ],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (transfer['statusTransfert'] == 'Retirer')
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.green[300],
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text(
+                                'Déjà Retiré',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              onPressed: () async {
+                                // String id = transfer['id'];
+                                // String passeword =
+                                //     transfer['destinationPassewordAgent'];
+                                // retirerFond(context, passeword, id);
+                                // print(passeword + " contre" + id);
+                              },
+                            )
+                          else
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.blue[300],
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)),
+                              ),
+                              child: const Text(
+                                'En cours',
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              onPressed: () async {
+                                // String id = transfer['id'];
+                                // String passeword =
+                                //     transfer['destinationPassewordAgent'];
+                                // retirerFond(context, passeword, id);
+                                // print(passeword + " contre" + id);
+                              },
+                            )
+                        ],
+                      ),
+                    ),
+                    Divider()
+                  ],
+                );
+              },
+            );
+          },
+        ));
+     
+      
+      default:
+        return Center(child: Text('Aucun segment sélectionné'));
+    }
+  }
+
 }

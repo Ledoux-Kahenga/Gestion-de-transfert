@@ -72,7 +72,7 @@ class _SideMenuAgentState extends State<SideMenuAgent> {
                   onTap: () {
                     setState(() {
                       _selectedItemIndex = 0;
-                      widget.onItemSelected(DashboardAgentScreen(agenceNom: '', nom: '', agenceId: "",));
+                      widget.onItemSelected(DashboardAgentScreen(agenceNom: '', nom: '', agenceId: "", password: "",));
                     });
                   },
                   selected: _selectedItemIndex == 0,
