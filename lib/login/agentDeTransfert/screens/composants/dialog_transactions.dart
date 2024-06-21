@@ -39,17 +39,15 @@ class _DialogTransactionState extends State<DialogTransaction> {
 
   @override
   void initState() {
-    _transfersFuture = FirebaseFirestore.instance.collection('transfers').get();
     super.initState();
     _selectedSegment = 0;
     _nomController.text =
         DateFormat('dd/MM/yyyy').format(_selectedDateNotifier.value);
-
     _filterDate = _selectedDate;
-
+    _fetchFilteredTransactions(); // Charger les transactions initiales
     _agencesRef = FirebaseFirestore.instance.collection('agences');
     _agencesStream =
-        _agencesRef.where('estAttribuee', isEqualTo: true,).snapshots();
+        _agencesRef.where('estAttribuee', isEqualTo: true).snapshots();
   }
 
   @override
@@ -72,10 +70,22 @@ class _DialogTransactionState extends State<DialogTransaction> {
     if (picked != null && picked != _selectedDateNotifier.value) {
       setState(() {
         _selectedDateNotifier.value = picked;
-        // Mise à jour du contrôleur avec la date formatée pour l'affichage
+        _filterDate = picked; // Mettre à jour la date de filtrage
         _nomController.text = DateFormat('dd/MM/yyyy').format(picked);
+        _fetchFilteredTransactions(); // Rafraîchir les transactions filtrées
       });
     }
+  }
+
+  void _fetchFilteredTransactions() {
+    setState(() {
+      _transfersFuture = FirebaseFirestore.instance
+          .collection('transfers')
+          .where('date',
+              isEqualTo: DateFormat('yyyy-MM-dd').format(_filterDate ??
+                  DateTime.now())) // Use DateTime.now() as fallback
+          .get();
+    });
   }
 
   @override
@@ -86,7 +96,7 @@ class _DialogTransactionState extends State<DialogTransaction> {
     var newHeight = height > 500.0 ? 500.0 : height;
     return AlertDialog(
       backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      surfaceTintColor: Colors.transparent,
+      // surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(10.0),
@@ -153,55 +163,54 @@ class _DialogTransactionState extends State<DialogTransaction> {
                         ),
                       ),
                       Container(
-                          width: 230,
-                          child: StreamBuilder<QuerySnapshot>(
-                            stream: _agencesStream,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                List<DropdownMenuItem<String>> agences = snapshot.data!.docs
-                                    .where((doc) =>
-                                        doc.get('nom') !=
-                                        widget.agenceNom) // Filtre côté client
-                                    .map((doc) {
-                                  return DropdownMenuItem<String>(
-                                    value: doc.id,
-                                    child: Text(doc.get('nom')),
-                                  );
-                                }).toList();
-                                if (agences.isEmpty) {
-                                  return Text(
-                                    'Aucune agence disponible pour le transfert.',
-                                    style: TextStyle(color: Colors.red),
-                                  );
-                                }
-
-                                return DropdownButtonFormField<String>(
-                                  decoration: _getInputDecoration4("AGENCE"),
-                                  value: _selectedAgenceId,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _selectedAgenceId = value;
-                                      _selectedAgenceNom = snapshot.data!.docs
-                                          .firstWhere((doc) => doc.id == value)
-                                          .get('nom');
-                                    });
-                                  },
-                                  items: agences,
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Veuillez sélectionner une agence';
-                                    }
-                                    return null;
-                                  },
+                        width: 230,
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: _agencesStream,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List<DropdownMenuItem<String>> agences = snapshot
+                                  .data!.docs
+                                  .where((doc) =>
+                                      doc.get('nom') !=
+                                      widget.agenceNom) // Filtre côté client
+                                  .map((doc) {
+                                return DropdownMenuItem<String>(
+                                  value: doc.id,
+                                  child: Text(doc.get('nom')),
                                 );
-                              } else {
-                                return Center(
-                                    child: CircularProgressIndicator());
+                              }).toList();
+                              if (agences.isEmpty) {
+                                return Text(
+                                  'Aucune agence disponible pour le transfert.',
+                                  style: TextStyle(color: Colors.red),
+                                );
                               }
-                            },
-                          ),
+
+                              return DropdownButtonFormField<String>(
+                                decoration: _getInputDecoration4("AGENCE"),
+                                value: _selectedAgenceId,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedAgenceId = value;
+                                    _selectedAgenceNom = snapshot.data!.docs
+                                        .firstWhere((doc) => doc.id == value)
+                                        .get('nom');
+                                  });
+                                },
+                                items: agences,
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Veuillez sélectionner une agence';
+                                  }
+                                  return null;
+                                },
+                              );
+                            } else {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                          },
                         ),
-                      
+                      ),
                     ],
                   ),
                 ),
@@ -265,18 +274,15 @@ class _DialogTransactionState extends State<DialogTransaction> {
                     //               doc['origineAgencyName'] ==
                     //                   widget.agenceNom));
 
-                                      
                     // }).toList();
 
                     final filteredTransfers = documents
-                    .where((doc) =>
-                        (doc['origineAgencyName'] == widget.agenceNom &&
-                            doc['statusTransfert'] == 'En cours') ||
-                        (doc['origineAgencyName'] == widget.agenceNom &&
-                            doc['statusTransfert'] == 'Retirer'))
-                    .toList();
-
-                    
+                        .where((doc) =>
+                            (doc['origineAgencyName'] == widget.agenceNom &&
+                                doc['statusTransfert'] == 'En cours') ||
+                            (doc['origineAgencyName'] == widget.agenceNom &&
+                                doc['statusTransfert'] == 'Retirer'))
+                        .toList();
 
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -290,7 +296,128 @@ class _DialogTransactionState extends State<DialogTransaction> {
                       itemCount: filteredTransfers.length,
                       itemBuilder: (context, index) {
                         DocumentSnapshot transfer = filteredTransfers[index];
-                        // Le reste de votre code pour construire chaque élément de la liste...
+
+                         return ListView.builder(
+                  itemCount: filteredTransfers.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot transfer = filteredTransfers[index];
+                    return Column(
+                      children: [
+                        Divider(),
+                        ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (transfer['statusTransfert'] == 'Retirer')
+                                Text(
+                                  '${transfer['origineAgencyName']}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                )
+                              else
+                                Text(
+                                  'Vers: ${transfer['destinationAgencyName']}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  'Beneficiaire: ${transfer['beneficiaryName']}'),
+                              Text(
+                                  'Code de retrait: ${transfer['codeRetrait']}'),
+                              Text('Montant: ${transfer['montant']}'),
+                              if (transfer['statusTransfert'] == 'Retirer')
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                        style: TextStyle(fontSize: 14)),
+                                    Text(
+                                        'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                        style: TextStyle(fontSize: 14)),
+                                    //  Icon(Icons.arrow_right, size: 16.0),
+                                  ],
+                                )
+                              else
+                                Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                          style: const TextStyle(fontSize: 14)),
+                                      // Icon(Icons.arrow_left, size: 16.0),
+                                    ])
+                            ],
+                          ),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (transfer['statusTransfert'] == 'Retirer')
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.green[300],
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  child: const Text(
+                                    'Déjà Retiré',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  onPressed: () async {
+                                    // String id = transfer['id'];
+                                    // String passeword =
+                                    //     transfer['destinationPassewordAgent'];
+                                    // retirerFond(context, passeword, id);
+                                    // print(passeword + " contre" + id);
+                                  },
+                                )
+                              else
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.blue[300],
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  child: const Text(
+                                    'En cours',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  onPressed: () async {
+                                    // String id = transfer['id'];
+                                    // String passeword =
+                                    //     transfer['destinationPassewordAgent'];
+                                    // retirerFond(context, passeword, id);
+                                    // print(passeword + " contre" + id);
+                                  },
+                                )
+                            ],
+                          ),
+                        ),
+                        Divider()
+                      ],
+                    );
+                  },
+                );
+             
                       },
                     );
                   },
@@ -442,6 +569,7 @@ class _DialogTransactionState extends State<DialogTransaction> {
                     );
                   },
                 );
+             
               },
             ));
 
@@ -597,6 +725,7 @@ class _DialogTransactionState extends State<DialogTransaction> {
         return Container(
           height: newHeight,
           width: newWidth,
+          color: Colors.grey[200], // Example default widget
         );
     }
   }

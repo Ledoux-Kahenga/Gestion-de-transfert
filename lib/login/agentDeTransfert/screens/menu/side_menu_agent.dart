@@ -35,7 +35,7 @@ class _SideMenuAgentState extends State<SideMenuAgent> {
     return Container(
       color: AppColors.backgroundWhite,
       child: Drawer(
-        surfaceTintColor: Colors.white,
+        // surfaceTintColor: Colors.white,
         backgroundColor: Colors.white,
         child: Center(
           // Ajout de Center pour centrer le contenu du Drawer
