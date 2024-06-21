@@ -41,8 +41,8 @@ class _DialogTransactionState extends State<DialogTransaction> {
   void initState() {
     super.initState();
     _selectedSegment = 0;
-    _nomController.text =
-        DateFormat('dd/MM/yyyy').format(_selectedDateNotifier.value);
+    // _nomController.text =
+    //     DateFormat('dd/MM/yyyy').format(_selectedDateNotifier.value);
     _filterDate = _selectedDate;
     _fetchFilteredTransactions(); // Charger les transactions initiales
     _agencesRef = FirebaseFirestore.instance.collection('agences');
@@ -77,13 +77,15 @@ class _DialogTransactionState extends State<DialogTransaction> {
     }
   }
 
-  void _fetchFilteredTransactions() {
+  void _fetchFilteredTransactions({String? agenceId}) {
     setState(() {
       _transfersFuture = FirebaseFirestore.instance
           .collection('transfers')
           .where('date',
-              isEqualTo: DateFormat('yyyy-MM-dd').format(_filterDate ??
-                  DateTime.now())) // Use DateTime.now() as fallback
+              isEqualTo: DateFormat('yyyy-MM-dd')
+                  .format(_filterDate ?? DateTime.now()))
+          .where('destinationAgencyId', isEqualTo: agenceId)
+          // .where('origineAgencyId', isEqualTo: agenceId)
           .get();
     });
   }
@@ -96,7 +98,7 @@ class _DialogTransactionState extends State<DialogTransaction> {
     var newHeight = height > 500.0 ? 500.0 : height;
     return AlertDialog(
       backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      // surfaceTintColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(10.0),
@@ -170,9 +172,10 @@ class _DialogTransactionState extends State<DialogTransaction> {
                             if (snapshot.hasData) {
                               List<DropdownMenuItem<String>> agences = snapshot
                                   .data!.docs
-                                  .where((doc) =>
-                                      doc.get('nom') !=
-                                      widget.agenceNom) // Filtre côté client
+                                  // .where((doc) =>
+                                  //     doc.get('nom') !=
+                                  //     widget
+                                  //         .agenceNom) // Filtre côté agece de destination
                                   .map((doc) {
                                 return DropdownMenuItem<String>(
                                   value: doc.id,
@@ -181,7 +184,7 @@ class _DialogTransactionState extends State<DialogTransaction> {
                               }).toList();
                               if (agences.isEmpty) {
                                 return Text(
-                                  'Aucune agence disponible pour le transfert.',
+                                  'Aucune agence n\'est disponible.',
                                   style: TextStyle(color: Colors.red),
                                 );
                               }
@@ -195,6 +198,9 @@ class _DialogTransactionState extends State<DialogTransaction> {
                                     _selectedAgenceNom = snapshot.data!.docs
                                         .firstWhere((doc) => doc.id == value)
                                         .get('nom');
+                                    _fetchFilteredTransactions(
+                                        agenceId:
+                                            value); // Assurez-vous que cette méthode existe et filtre correctement
                                   });
                                 },
                                 items: agences,
@@ -261,20 +267,6 @@ class _DialogTransactionState extends State<DialogTransaction> {
                   future: _transfersFuture,
                   builder: (context, snapshot) {
                     final documents = snapshot.data?.docs ?? [];
-                    // final filteredTransfers = documents.where((doc) {
-                    //   DateTime docDate = DateTime.parse(doc[
-                    //       'date']); // Assurez-vous que cela correspond au format de votre date dans Firestore
-                    //   bool isSameDate = docDate.year == selectedDate.year &&
-                    //       docDate.month == selectedDate.month &&
-                    //       docDate.day == selectedDate.day;
-                    //   return isSameDate ||
-                    //       ((doc['destinationAgencyName'] == widget.agenceNom ||
-                    //               doc['statusTransfert'] == 'En cours') &&
-                    //           (doc['statusTransfert'] == 'Retirer' ||
-                    //               doc['origineAgencyName'] ==
-                    //                   widget.agenceNom));
-
-                    // }).toList();
 
                     final filteredTransfers = documents
                         .where((doc) =>
@@ -297,127 +289,148 @@ class _DialogTransactionState extends State<DialogTransaction> {
                       itemBuilder: (context, index) {
                         DocumentSnapshot transfer = filteredTransfers[index];
 
-                         return ListView.builder(
-                  itemCount: filteredTransfers.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot transfer = filteredTransfers[index];
-                    return Column(
-                      children: [
-                        Divider(),
-                        ListTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (transfer['statusTransfert'] == 'Retirer')
-                                Text(
-                                  '${transfer['origineAgencyName']}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                )
-                              else
-                                Text(
-                                  'Vers: ${transfer['destinationAgencyName']}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                            ],
+                        return Container(
+                          height: newHeight,
+                          child: ListView.builder(
+                            itemCount: filteredTransfers.length,
+                            itemBuilder: (context, index) {
+                              DocumentSnapshot transfer =
+                                  filteredTransfers[index];
+                              return Column(
+                                children: [
+                                  Divider(),
+                                  ListTile(
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        if (transfer['statusTransfert'] ==
+                                            'Retirer')
+                                          Text(
+                                            '${transfer['origineAgencyName']}',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          )
+                                        else
+                                          Text(
+                                            'Vers: ${transfer['destinationAgencyName']}',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                      ],
+                                    ),
+                                    subtitle: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Beneficiaire: ${transfer['beneficiaryName']}'),
+                                        Text(
+                                            'Code de retrait: ${transfer['codeRetrait']}'),
+                                        Text('Montant: ${transfer['montant']}'),
+                                        if (transfer['statusTransfert'] ==
+                                            'Retirer')
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                  'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                                  style:
+                                                      TextStyle(fontSize: 14)),
+                                              Text(
+                                                  'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                                  style:
+                                                      TextStyle(fontSize: 14)),
+                                              //  Icon(Icons.arrow_right, size: 16.0),
+                                            ],
+                                          )
+                                        else
+                                          Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                    'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                                    style: const TextStyle(
+                                                        fontSize: 14)),
+                                                // Icon(Icons.arrow_left, size: 16.0),
+                                              ])
+                                      ],
+                                    ),
+                                    trailing: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        if (transfer['statusTransfert'] ==
+                                            'Retirer')
+                                          TextButton(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Colors.white,
+                                              backgroundColor:
+                                                  Colors.green[300],
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 20, vertical: 12),
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
+                                            ),
+                                            child: const Text(
+                                              'Déjà Retiré',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            onPressed: () async {
+                                              // String id = transfer['id'];
+                                              // String passeword =
+                                              //     transfer['destinationPassewordAgent'];
+                                              // retirerFond(context, passeword, id);
+                                              // print(passeword + " contre" + id);
+                                            },
+                                          )
+                                        else
+                                          TextButton(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Colors.white,
+                                              backgroundColor: Colors.blue[300],
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 20, vertical: 12),
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8)),
+                                            ),
+                                            child: const Text(
+                                              'En cours',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            onPressed: () async {
+                                              // String id = transfer['id'];
+                                              // String passeword =
+                                              //     transfer['destinationPassewordAgent'];
+                                              // retirerFond(context, passeword, id);
+                                              // print(passeword + " contre" + id);
+                                            },
+                                          )
+                                      ],
+                                    ),
+                                  ),
+                                  Divider()
+                                ],
+                              );
+                            },
                           ),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  'Beneficiaire: ${transfer['beneficiaryName']}'),
-                              Text(
-                                  'Code de retrait: ${transfer['codeRetrait']}'),
-                              Text('Montant: ${transfer['montant']}'),
-                              if (transfer['statusTransfert'] == 'Retirer')
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                        style: TextStyle(fontSize: 14)),
-                                    Text(
-                                        'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
-                                        style: TextStyle(fontSize: 14)),
-                                    //  Icon(Icons.arrow_right, size: 16.0),
-                                  ],
-                                )
-                              else
-                                Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                          'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                          style: const TextStyle(fontSize: 14)),
-                                      // Icon(Icons.arrow_left, size: 16.0),
-                                    ])
-                            ],
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (transfer['statusTransfert'] == 'Retirer')
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.green[300],
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                  child: const Text(
-                                    'Déjà Retiré',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  onPressed: () async {
-                                    // String id = transfer['id'];
-                                    // String passeword =
-                                    //     transfer['destinationPassewordAgent'];
-                                    // retirerFond(context, passeword, id);
-                                    // print(passeword + " contre" + id);
-                                  },
-                                )
-                              else
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.blue[300],
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                  child: const Text(
-                                    'En cours',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  onPressed: () async {
-                                    // String id = transfer['id'];
-                                    // String passeword =
-                                    //     transfer['destinationPassewordAgent'];
-                                    // retirerFond(context, passeword, id);
-                                    // print(passeword + " contre" + id);
-                                  },
-                                )
-                            ],
-                          ),
-                        ),
-                        Divider()
-                      ],
-                    );
-                  },
-                );
-             
+                        );
                       },
                     );
                   },
@@ -449,127 +462,134 @@ class _DialogTransactionState extends State<DialogTransaction> {
                   return CircularProgressIndicator();
                 }
 
-                return ListView.builder(
-                  itemCount: filteredTransfers.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot transfer = filteredTransfers[index];
-                    return Column(
-                      children: [
-                        Divider(),
-                        ListTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (transfer['statusTransfert'] == 'Retirer')
+                return Container(
+                  height: newHeight,
+                  child: ListView.builder(
+                    itemCount: filteredTransfers.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot transfer = filteredTransfers[index];
+                      return Column(
+                        children: [
+                          Divider(),
+                          ListTile(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (transfer['statusTransfert'] == 'Retirer')
+                                  Text(
+                                    '${transfer['origineAgencyName']}',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  )
+                                else
+                                  Text(
+                                    'Vers: ${transfer['destinationAgencyName']}',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                              ],
+                            ),
+                            subtitle: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  '${transfer['origineAgencyName']}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                )
-                              else
+                                    'Beneficiaire: ${transfer['beneficiaryName']}'),
                                 Text(
-                                  'Vers: ${transfer['destinationAgencyName']}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  'Beneficiaire: ${transfer['beneficiaryName']}'),
-                              Text(
-                                  'Code de retrait: ${transfer['codeRetrait']}'),
-                              Text('Montant: ${transfer['montant']}'),
-                              if (transfer['statusTransfert'] == 'Retirer')
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                        style: TextStyle(fontSize: 14)),
-                                    Text(
-                                        'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
-                                        style: TextStyle(fontSize: 14)),
-                                    //  Icon(Icons.arrow_right, size: 16.0),
-                                  ],
-                                )
-                              else
-                                Column(
+                                    'Code de retrait: ${transfer['codeRetrait']}'),
+                                Text('Montant: ${transfer['montant']}'),
+                                if (transfer['statusTransfert'] == 'Retirer')
+                                  Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                           'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                          style: const TextStyle(fontSize: 14)),
-                                      // Icon(Icons.arrow_left, size: 16.0),
-                                    ])
-                            ],
+                                          style: TextStyle(fontSize: 14)),
+                                      Text(
+                                          'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                          style: TextStyle(fontSize: 14)),
+                                      //  Icon(Icons.arrow_right, size: 16.0),
+                                    ],
+                                  )
+                                else
+                                  Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                            style:
+                                                const TextStyle(fontSize: 14)),
+                                        // Icon(Icons.arrow_left, size: 16.0),
+                                      ])
+                              ],
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                if (transfer['statusTransfert'] == 'Retirer')
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.green[300],
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                    ),
+                                    child: const Text(
+                                      'Déjà Retiré',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    onPressed: () async {
+                                      // String id = transfer['id'];
+                                      // String passeword =
+                                      //     transfer['destinationPassewordAgent'];
+                                      // retirerFond(context, passeword, id);
+                                      // print(passeword + " contre" + id);
+                                    },
+                                  )
+                                else
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.blue[300],
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                    ),
+                                    child: const Text(
+                                      'En cours',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    onPressed: () async {
+                                      // String id = transfer['id'];
+                                      // String passeword =
+                                      //     transfer['destinationPassewordAgent'];
+                                      // retirerFond(context, passeword, id);
+                                      // print(passeword + " contre" + id);
+                                    },
+                                  )
+                              ],
+                            ),
                           ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (transfer['statusTransfert'] == 'Retirer')
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.green[300],
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                  child: const Text(
-                                    'Déjà Retiré',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  onPressed: () async {
-                                    // String id = transfer['id'];
-                                    // String passeword =
-                                    //     transfer['destinationPassewordAgent'];
-                                    // retirerFond(context, passeword, id);
-                                    // print(passeword + " contre" + id);
-                                  },
-                                )
-                              else
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.blue[300],
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                  child: const Text(
-                                    'En cours',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  onPressed: () async {
-                                    // String id = transfer['id'];
-                                    // String passeword =
-                                    //     transfer['destinationPassewordAgent'];
-                                    // retirerFond(context, passeword, id);
-                                    // print(passeword + " contre" + id);
-                                  },
-                                )
-                            ],
-                          ),
-                        ),
-                        Divider()
-                      ],
-                    );
-                  },
+                          Divider()
+                        ],
+                      );
+                    },
+                  ),
                 );
-             
               },
             ));
 
@@ -598,125 +618,133 @@ class _DialogTransactionState extends State<DialogTransaction> {
                   return CircularProgressIndicator();
                 }
 
-                return ListView.builder(
-                  itemCount: filteredTransfers.length,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot transfer = filteredTransfers[index];
-                    return Column(
-                      children: [
-                        Divider(),
-                        ListTile(
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (transfer['statusTransfert'] == 'Retirer')
+                return Container(
+                  height: newHeight,
+                  child: ListView.builder(
+                    itemCount: filteredTransfers.length,
+                    itemBuilder: (context, index) {
+                      DocumentSnapshot transfer = filteredTransfers[index];
+                      return Column(
+                        children: [
+                          Divider(),
+                          ListTile(
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (transfer['statusTransfert'] == 'Retirer')
+                                  Text(
+                                    '${transfer['destinationAgencyName']}',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  )
+                                else
+                                  Text(
+                                    'De: ${transfer['origineAgencyName']}',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                              ],
+                            ),
+                            subtitle: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  '${transfer['destinationAgencyName']}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                )
-                              else
+                                    'Beneficiaire: ${transfer['beneficiaryName']}'),
                                 Text(
-                                  'De: ${transfer['origineAgencyName']}',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  'Beneficiaire: ${transfer['beneficiaryName']}'),
-                              Text(
-                                  'Code de retrait: ${transfer['codeRetrait']}'),
-                              Text('Montant: ${transfer['montant']}'),
-                              if (transfer['statusTransfert'] == 'Retirer')
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                        style: TextStyle(fontSize: 14)),
-                                    Text(
-                                        'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
-                                        style: TextStyle(fontSize: 14)),
-                                    //  Icon(Icons.arrow_right, size: 16.0),
-                                  ],
-                                )
-                              else
-                                Column(
+                                    'Code de retrait: ${transfer['codeRetrait']}'),
+                                Text('Montant: ${transfer['montant']}'),
+                                if (transfer['statusTransfert'] == 'Retirer')
+                                  Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                           'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                          style: const TextStyle(fontSize: 14)),
-                                      // Icon(Icons.arrow_left, size: 16.0),
-                                    ])
-                            ],
+                                          style: TextStyle(fontSize: 14)),
+                                      Text(
+                                          'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                          style: TextStyle(fontSize: 14)),
+                                      //  Icon(Icons.arrow_right, size: 16.0),
+                                    ],
+                                  )
+                                else
+                                  Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                            style:
+                                                const TextStyle(fontSize: 14)),
+                                        // Icon(Icons.arrow_left, size: 16.0),
+                                      ])
+                              ],
+                            ),
+                            trailing: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                if (transfer['statusTransfert'] == 'Retirer')
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.green[300],
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                    ),
+                                    child: const Text(
+                                      'Déjà Retiré',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    onPressed: () async {
+                                      // String id = transfer['id'];
+                                      // String passeword =
+                                      //     transfer['destinationPassewordAgent'];
+                                      // retirerFond(context, passeword, id);
+                                      // print(passeword + " contre" + id);
+                                    },
+                                  )
+                                else
+                                  TextButton(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.blue[300],
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
+                                    ),
+                                    child: const Text(
+                                      'En cours',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    onPressed: () async {
+                                      // String id = transfer['id'];
+                                      // String passeword =
+                                      //     transfer['destinationPassewordAgent'];
+                                      // retirerFond(context, passeword, id);
+                                      // print(passeword + " contre" + id);
+                                    },
+                                  )
+                              ],
+                            ),
                           ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (transfer['statusTransfert'] == 'Retirer')
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.green[300],
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                  child: const Text(
-                                    'Déjà Retiré',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  onPressed: () async {
-                                    // String id = transfer['id'];
-                                    // String passeword =
-                                    //     transfer['destinationPassewordAgent'];
-                                    // retirerFond(context, passeword, id);
-                                    // print(passeword + " contre" + id);
-                                  },
-                                )
-                              else
-                                TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.blue[300],
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8)),
-                                  ),
-                                  child: const Text(
-                                    'En cours',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  onPressed: () async {
-                                    // String id = transfer['id'];
-                                    // String passeword =
-                                    //     transfer['destinationPassewordAgent'];
-                                    // retirerFond(context, passeword, id);
-                                    // print(passeword + " contre" + id);
-                                  },
-                                )
-                            ],
-                          ),
-                        ),
-                        Divider()
-                      ],
-                    );
-                  },
+                          Divider()
+                        ],
+                      );
+                    },
+                  ),
                 );
               },
             ));

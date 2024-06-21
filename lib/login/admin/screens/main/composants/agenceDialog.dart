@@ -102,7 +102,7 @@ class _DialogOptionState extends State<DialogOption> {
 
     return AlertDialog(
       backgroundColor: AppColors.backgroundWhite,
-      // surfaceTintColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(10.0),

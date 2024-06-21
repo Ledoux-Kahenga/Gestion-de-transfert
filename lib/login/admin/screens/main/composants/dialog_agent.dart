@@ -46,7 +46,7 @@ class _DialogAgentState extends State<DialogAgent> {
     var newHeight = height > 500.0 ? 500.0 : height;
     return AlertDialog(
       backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
-      // surfaceTintColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(10.0),
