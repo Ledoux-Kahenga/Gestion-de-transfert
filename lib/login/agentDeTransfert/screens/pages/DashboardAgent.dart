@@ -12,13 +12,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:agence_transfert/constants.dart';
 import 'package:agence_transfert/login/admin/screens/main/composants/header_home.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:nb_utils/nb_utils.dart';
+import '../composants/dialog_message.dart';
+import 'dart:async' as async;
+
+import 'package:flutter_badged/badge_position.dart';
+import 'package:flutter_badged/badge_positioned.dart';
+import 'package:flutter_badged/flutter_badge.dart';
+
+// import 'dart:nativewrappers/_internal/vm/lib/async_patch.dart' as async_patch;
 
 class DashboardAgentScreen extends StatefulWidget {
   late String agenceNom;
   late String nom;
   late String agenceId;
   late String password;
+  // final Function(Widget) onItemSelected;
 
   DashboardAgentScreen(
       {required this.agenceNom,
@@ -33,17 +44,53 @@ class DashboardAgentScreen extends StatefulWidget {
 class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
   int? _selectedSegment;
   late Future<QuerySnapshot> _transfersFuture;
+  Stream<QuerySnapshot>? _transfersStream;
+  int _selectedItemIndex = 0;
+
+//  int _Counter = 0;
+  final ValueNotifier<int> _Counter = ValueNotifier<int>(0);
+  async.Timer? _timer;
 
   @override
   void initState() {
-    _transfersFuture = FirebaseFirestore.instance.collection('transfers').get();
+    // _transfersFuture = FirebaseFirestore.instance.collection('transfers').get();
     super.initState();
     _selectedSegment = 0;
+     _transfersStream = getData();
+    _startMessageCounterTimer();
   }
 
   @override
   void dispose() {
+    _stopMessageCounterTimer();
     super.dispose();
+  }
+
+  Stream<QuerySnapshot> getData() {
+  return FirebaseFirestore.instance.collection('transfers').snapshots();
+}
+
+  void _startMessageCounterTimer() {
+    _timer = async.Timer.periodic(const Duration(seconds: 1), (_) {
+      _messageCounter();
+      getData();
+    });
+  }
+
+  void _stopMessageCounterTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void _messageCounter() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('transfers')
+        .where('destinationAgencyName', isEqualTo: widget.agenceNom)
+        .where('statusTransfert', isEqualTo: 'En cours')
+        .get();
+
+    int counter = querySnapshot.docs.length;
+    _Counter.value = counter;
   }
 
   @override
@@ -54,427 +101,930 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
         double dashboardHeight = screenHeight;
         return Container(
           child: Scaffold(
-              body: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                color: AppColors.backgroundWhite,
-                height: 70,
-                margin: EdgeInsets.only(left: 2, top: 1, right: 2),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "HOME",
-                        style: TextStyle(
-                            color: AppColors.textColorBlack,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      Container(
-                        // margin: EdgeInsets.only(left: AppTexts.defaultPadding),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: AppTexts.defaultPadding,
-                          vertical: AppTexts.defaultPadding / 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(6)),
-                          border: Border.all(color: Colors.black12),
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              "assets/images/profile_pic.png",
-                              height: 38,
-                            ),
-                            Text(
-                              widget.nom,
-                              style: TextStyle(color: AppColors.textColorBlack),
-                            ),
-                            Icon(Icons.keyboard_arrow_down),
-                          ],
-                        ),
-                      ),
-                    ],
+              backgroundColor: AppColors.background,
+              body: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      height: double.infinity,
+                      width: 300,
+                      color: AppColors.backgroundWhite,
+                      child: Column(children: [
+                        50.height,
+                        Container(
+                            height: 600,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text('AGENCE BAUDOUIN',
+                                    style: boldTextStyle(size: 18)),
+                                4.height,
+                                Text(
+                                  'LA COLOMBE',
+                                  style: secondaryTextStyle(size: 16),
+                                ),
+                                50.height,
+                                Divider(),
+                                Container(
+                                  height: 400,
+                                  child: ListView(
+                                    children: [
+                                      Container(
+                                        // padding: EdgeInsets.only(left: 20),
+                                        color: _selectedItemIndex == 0
+                                            ? AppColors.itmeSelected
+                                            : Colors.transparent,
+                                        child: Center(
+                                          child: ListTile(
+                                            leading: SvgPicture.asset(
+                                                'assets/icons/home.svg',
+                                                width: 16),
+                                            title: Text(
+                                              'Acceuil',
+                                              style: boldTextStyle(
+                                                color: _selectedItemIndex == 0
+                                                    ? AppColors.textColorBlack
+                                                    : Colors.black
+                                                        .withOpacity(0.6),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedItemIndex = 0;
+                                                // widget.onItemSelected( )
+                                              });
+                                            },
+                                            selected: _selectedItemIndex == 0,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        // padding: EdgeInsets.only(left: 20),
+                                        color: _selectedItemIndex == 1
+                                            ? AppColors.itmeSelected
+                                            : Colors.transparent,
+                                        child: Center(
+                                          child: ListTile(
+                                            leading: SvgPicture.asset(
+                                                'assets/icons/paper-plane.svg',
+                                                width: 16),
+                                            title: Text(
+                                              'Envoi de fonds',
+                                              style: boldTextStyle(
+                                                color: _selectedItemIndex == 1
+                                                    ? AppColors.textColorBlack
+                                                    : Colors.black
+                                                        .withOpacity(0.6),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedItemIndex = 1;
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return DialogEnvoyer(
+                                                        agenceNom:
+                                                            widget.agenceNom,
+                                                        nom: widget.nom,
+                                                        agenceId:
+                                                            widget.agenceId,
+                                                        password:
+                                                            widget.password,
+                                                      );
+                                                    });
+                                              });
+                                            },
+                                            selected: _selectedItemIndex == 1,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        // padding: EdgeInsets.only(left: 20),
+                                        color: _selectedItemIndex == 2
+                                            ? AppColors.itmeSelected
+                                            : Colors.transparent,
+                                        child: Center(
+                                          child: ListTile(
+                                            leading: SvgPicture.asset(
+                                                'assets/icons/envelope-dot.svg',
+                                                width: 16),
+                                            title: Text(
+                                              'Retrait de fonds',
+                                              style: boldTextStyle(
+                                                color: _selectedItemIndex == 2
+                                                    ? AppColors.textColorBlack
+                                                    : Colors.black
+                                                        .withOpacity(0.6),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedItemIndex = 2;
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return DialogRecevoir(
+                                                        agenceNom:
+                                                            widget.agenceNom,
+                                                        nom: widget.nom,
+                                                        agenceId:
+                                                            widget.agenceId,
+                                                        password:
+                                                            widget.password,
+                                                      );
+                                                    });
+                                              });
+                                            },
+                                            selected: _selectedItemIndex == 2,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        // padding: EdgeInsets.only(left: 20),
+                                        color: _selectedItemIndex == 3
+                                            ? AppColors.itmeSelected
+                                            : Colors.transparent,
+                                        child: Center(
+                                          child: ListTile(
+                                            leading: SvgPicture.asset(
+                                                'assets/icons/priority-arrows.svg',
+                                                width: 16),
+                                            title: Text(
+                                              'Transactions',
+                                              style: boldTextStyle(
+                                                color: _selectedItemIndex == 3
+                                                    ? AppColors.textColorBlack
+                                                    : Colors.black
+                                                        .withOpacity(0.6),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedItemIndex = 3;
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return DialogTransaction(
+                                                        agenceNom:
+                                                            widget.agenceNom,
+                                                        nom: widget.nom,
+                                                        agenceId:
+                                                            widget.agenceId,
+                                                        password:
+                                                            widget.password,
+                                                      );
+                                                    });
+                                              });
+                                            },
+                                            selected: _selectedItemIndex == 3,
+                                          ),
+                                        ),
+                                      ),
+                                      14.height,
+                                      Divider(),
+                                      Container(
+                                        // padding: EdgeInsets.only(left: 20),
+                                        color: _selectedItemIndex == 4
+                                            ? AppColors.itmeSelected
+                                            : Colors.transparent,
+                                        child: Center(
+                                          child: ListTile(
+                                            leading: SvgPicture.asset(
+                                                'assets/icons/calculator-math-tax.svg',
+                                                width: 16),
+                                            title: Text(
+                                              'Relevés bancaires',
+                                              style: boldTextStyle(
+                                                color: _selectedItemIndex == 4
+                                                    ? AppColors.textColorBlack
+                                                    : Colors.black
+                                                        .withOpacity(0.6),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedItemIndex = 4;
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return DialogMessage(
+                                                        agenceNom:
+                                                            widget.agenceNom,
+                                                        nom: widget.nom,
+                                                        agenceId:
+                                                            widget.agenceId,
+                                                        password:
+                                                            widget.password,
+                                                      );
+                                                    });
+                                              });
+                                            },
+                                            selected: _selectedItemIndex == 4,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        // padding: EdgeInsets.only(left: 20),
+                                        color: _selectedItemIndex == 5
+                                            ? AppColors.itmeSelected
+                                            : Colors.transparent,
+                                        child: Center(
+                                          child: ListTile(
+                                            leading: SvgPicture.asset(
+                                                'assets/icons/briefcase.svg',
+                                                width: 16),
+                                            title: Text(
+                                              'Compte agence',
+                                              style: boldTextStyle(
+                                                color: _selectedItemIndex == 5
+                                                    ? AppColors.textColorBlack
+                                                    : Colors.black
+                                                        .withOpacity(0.6),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedItemIndex = 5;
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return DialogMessage(
+                                                        agenceNom:
+                                                            widget.agenceNom,
+                                                        nom: widget.nom,
+                                                        agenceId:
+                                                            widget.agenceId,
+                                                        password:
+                                                            widget.password,
+                                                      );
+                                                    });
+                                              });
+                                            },
+                                            selected: _selectedItemIndex == 5,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        // padding: EdgeInsets.only(left: 20),
+                                        color: _selectedItemIndex == 6
+                                            ? AppColors.itmeSelected
+                                            : Colors.transparent,
+                                        child: Center(
+                                          child: ListTile(
+                                            leading: SvgPicture.asset(
+                                                'assets/icons/settings.svg',
+                                                width: 16),
+                                            title: Text(
+                                              'Parametres',
+                                              style: boldTextStyle(
+                                                color: _selectedItemIndex == 6
+                                                    ? AppColors.textColorBlack
+                                                    : Colors.black
+                                                        .withOpacity(0.6),
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedItemIndex = 6;
+                                                showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return DialogMessage(
+                                                        agenceNom:
+                                                            widget.agenceNom,
+                                                        nom: widget.nom,
+                                                        agenceId:
+                                                            widget.agenceId,
+                                                        password:
+                                                            widget.password,
+                                                      );
+                                                    });
+                                              });
+                                            },
+                                            selected: _selectedItemIndex == 6,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            )),
+                      ]),
+                    ),
                   ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(left: 8, top: 8, right: 8),
-                child: Row(
-                  children: [
-                    Column(
+                  Expanded(
+                    flex: 8,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Card(
-                          color: Colors.white,
-                          surfaceTintColor: Colors.transparent,
-                          shadowColor: Color.fromARGB(255, 243, 220, 204),
-                          elevation: 4,
-                          child: Container(
-                            // margin: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(6)),
-                              border: Border.all(color: Colors.black12),
-                            ),
-                            // color: AppColors.backgroundWhite,
-                            width: 600,
-                            height: 100,
-                            child: Center(
-                              child: Text(
-                                widget.agenceNom,
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    color: AppColors.textColorBlack,
-                                    fontWeight: FontWeight.w100),
-                                // textAlign: TextAlign.center,
-                              ),
+                        Container(
+                          color: AppColors.backgroundWhite,
+                          height: 70,
+                          margin: EdgeInsets.only(
+                              left: 4, bottom: 2, top: 1, right: 4),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "TABLEAU DE BORD",
+                                  style: boldTextStyle(size: 26),
+                                ),
+                                Row(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 200,
+                                          height: 50,
+                                          child: AppTextField(
+                                            controller:
+                                                TextEditingController(), // Optional
+                                            textFieldType: TextFieldType.OTHER,
+                                            decoration: InputDecoration(
+                                                labelText: 'Recherche',
+                                                suffixIcon: Icon(Icons.search ),
+                                               ),
+                                            
+                                            
+                                          ),
+                                        ),
+
+                                        10.width,
+
+                                        // SvgPicture.asset(
+                                        //   "assets/icons/envelope.svg",
+                                        // ),
+                                      ],
+                                    ),
+                                    10.width,
+                                    Container(
+                                      // margin: EdgeInsets.only(left: AppTexts.defaultPadding),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: AppTexts.defaultPadding,
+                                        vertical: AppTexts.defaultPadding / 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(6)),
+                                        border:
+                                            Border.all(color: Colors.black12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/profile_pic.png",
+                                            height: 38,
+                                          ),
+                                          5.width,
+                                          Text(widget.nom,
+                                              style:
+                                                  primaryTextStyle(size: 16)),
+                                          Icon(Icons.keyboard_arrow_down),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        Row(
-                          children: [
-                            Container(
-                              height: 200,
-                              width: 200,
-                              child: Card(
-                                color: Colors.white,
-                                surfaceTintColor: Colors.transparent,
-                                shadowColor: Color.fromARGB(255, 243, 220, 204),
-                                elevation: 4,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return DialogEnvoyer(
-                                            agenceNom: widget.agenceNom,
-                                            nom: widget.nom,
-                                            agenceId: widget.agenceId,
-                                            password: widget.password,
-                                          );
-                                        });
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(2),
-                                      // border: Border.all(color: Colors.blue, width: 2),
+                        Container(
+                          margin: EdgeInsets.only(left: 2, bottom: 0, right: 2),
+                          child: Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  2.height,
+                                  Card(
+                                    color: Colors.white,
+                                    surfaceTintColor: Colors.transparent,
+                                    shadowColor:
+                                        Color.fromARGB(255, 243, 220, 204),
+                                    elevation: 1,
+                                    margin: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.0),
                                     ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Image.asset(
-                                          'assets/images/envoyer.png',
-                                          height: 100.0,
-                                          width: 100.0,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        Text(
-                                          "Envoyer",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              color: AppColors.textColorBlack,
-                                              fontWeight: FontWeight.bold),
-                                        )
-                                      ],
+                                    child: Container(
+                                      // margin: EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(4)),
+                                        // border: Border.all(color: Colors.black12),
+                                      ),
+                                      // color: AppColors.backgroundWhite,
+                                      width: 590,
+                                      height: 126,
+                                      child: Center(
+                                        child: Text(
+                                            widget.agenceNom.toUpperCase(),
+                                            style: boldTextStyle(size: 20)
+                                            // textAlign: TextAlign.center,
+                                            ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return DialogTransaction(
-                                        agenceNom: widget.agenceNom,
-                                        nom: widget.nom,
-                                        agenceId: widget.agenceId,
-                                        password: widget.password,
-                                      );
-                                    });
-                              },
-                              child: Container(
-                                height: 200,
-                                width: 200,
-                                child: Card(
-                                  color: Colors.white,
-                                  surfaceTintColor: Colors.transparent,
-                                  shadowColor: Color.fromARGB(255, 243, 220, 204),
-                                  elevation: 4,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(2),
-                                      // border: Border.all(color: Colors.blue, width: 2),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Image.asset(
-                                          'assets/images/transactions.png',
-                                          height: 100.0,
-                                          width: 100.0,
-                                          fit: BoxFit.cover,
+                                  2.height,
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 194,
+                                        width: 194,
+                                        margin: EdgeInsets.all(2),
+                                        child: Card(
+                                          color: Colors.white,
+                                          surfaceTintColor: Colors.transparent,
+                                          shadowColor: Color.fromARGB(
+                                              255, 243, 220, 204),
+                                          elevation: 1,
+                                          margin: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return DialogEnvoyer(
+                                                      agenceNom:
+                                                          widget.agenceNom,
+                                                      nom: widget.nom,
+                                                      agenceId: widget.agenceId,
+                                                      password: widget.password,
+                                                    );
+                                                  });
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.only(
+                                                  left: 2,
+                                                  bottom: 2,
+                                                  top: 2,
+                                                  right: 2),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(1),
+                                                // border: Border.all(color: Colors.blue, width: 2),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/envoyer.png',
+                                                    height: 100.0,
+                                                    width: 100.0,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Text("Envoi de fonds",
+                                                      style: boldTextStyle()),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                        Text(
-                                          "Transactions",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              color: AppColors.textColorBlack,
-                                              fontWeight: FontWeight.bold),
-                                        )
-                                      ],
-                                    ),
+                                      ),
+                                      Container(
+                                        height: 194,
+                                        width: 194,
+                                        margin: EdgeInsets.all(2),
+                                        child: Card(
+                                          color: Colors.white,
+                                          surfaceTintColor: Colors.transparent,
+                                          shadowColor: Color.fromARGB(
+                                              255, 243, 220, 204),
+                                          elevation: 1,
+                                          margin: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return DialogTransaction(
+                                                      agenceNom:
+                                                          widget.agenceNom,
+                                                      nom: widget.nom,
+                                                      agenceId: widget.agenceId,
+                                                      password: widget.password,
+                                                    );
+                                                  });
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.only(
+                                                  left: 2,
+                                                  bottom: 2,
+                                                  top: 2,
+                                                  right: 2),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(1),
+                                                // border: Border.all(color: Colors.blue, width: 2),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/transactions.png',
+                                                    height: 100.0,
+                                                    width: 100.0,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Text("Transactions",
+                                                      style: boldTextStyle())
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 194,
+                                        width: 194,
+                                        margin: EdgeInsets.all(2),
+                                        child: Card(
+                                          color: Colors.white,
+                                          surfaceTintColor: Colors.transparent,
+                                          shadowColor: Color.fromARGB(
+                                              255, 243, 220, 204),
+                                          elevation: 1,
+                                          margin: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return DialogRecevoir(
+                                                      agenceNom:
+                                                          widget.agenceNom,
+                                                      nom: widget.nom,
+                                                      agenceId: widget.agenceId,
+                                                      password: widget.password,
+                                                    );
+                                                  });
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.only(
+                                                  left: 2,
+                                                  bottom: 2,
+                                                  top: 2,
+                                                  right: 2),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(1),
+                                                // border: Border.all(color: Colors.blue, width: 2),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Stack(
+                                                      alignment:
+                                                          AlignmentDirectional
+                                                              .topEnd,
+                                                      children: [
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 20,
+                                                                  bottom: 20),
+                                                          child: ValueListenableBuilder<
+                                                                  int>(
+                                                              valueListenable:
+                                                                  _Counter,
+                                                              builder: (context,
+                                                                  value,
+                                                                  child) {
+                                                                if (value > 0) {
+                                                                  return FlutterBadge(
+                                                                    icon: SvgPicture
+                                                                        .asset(
+                                                                      "assets/icons/bell.svg",
+                                                                      height:
+                                                                          24.0,
+                                                                    ),
+                                                                    itemCount:
+                                                                        value,
+                                                                    borderRadius:
+                                                                        100,
+                                                                  );
+                                                                } else {
+                                                                  return SvgPicture
+                                                                      .asset(
+                                                                    "assets/icons/bell.svg",
+                                                                    height:
+                                                                        24.0,
+                                                                  );
+                                                                }
+                                                              }),
+                                                        ),
+                                                        Image.asset(
+                                                          'assets/images/recevoir.png',
+                                                          height: 100.0,
+                                                          width: 100.0,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ]),
+                                                  Text("Reception de fonds",
+                                                      style: boldTextStyle())
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
+                                  // 2.width,
+                                  2.height,
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 194,
+                                        width: 194,
+                                        margin: EdgeInsets.all(2),
+                                        child: Card(
+                                          color: Colors.white,
+                                          surfaceTintColor: Colors.transparent,
+                                          shadowColor: Color.fromARGB(
+                                              255, 243, 220, 204),
+                                          elevation: 1,
+                                          margin: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return DialogMessage(
+                                                      agenceNom:
+                                                          widget.agenceNom,
+                                                      nom: widget.nom,
+                                                      agenceId: widget.agenceId,
+                                                      password: widget.password,
+                                                    );
+                                                  });
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(1),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/service1.png',
+                                                    height: 100.0,
+                                                    width: 100.0,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Text("Relevés de comptes",
+                                                      style: boldTextStyle()),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 194,
+                                        width: 194,
+                                        margin: EdgeInsets.all(2),
+                                        child: Card(
+                                          color: Colors.white,
+                                          surfaceTintColor: Colors.transparent,
+                                          shadowColor: Color.fromARGB(
+                                              255, 243, 220, 204),
+                                          elevation: 1,
+                                          margin: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return DialogMessage(
+                                                      agenceNom:
+                                                          widget.agenceNom,
+                                                      nom: widget.nom,
+                                                      agenceId: widget.agenceId,
+                                                      password: widget.password,
+                                                    );
+                                                  });
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(1),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/compte.png',
+                                                    height: 100.0,
+                                                    width: 100.0,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Text("Compte de l'agence",
+                                                      style: boldTextStyle()),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        height: 194,
+                                        width: 194,
+                                        margin: EdgeInsets.all(2),
+                                        child: Card(
+                                          color: Colors.white,
+                                          surfaceTintColor: Colors.transparent,
+                                          shadowColor: Color.fromARGB(
+                                              255, 243, 220, 204),
+                                          elevation: 1,
+                                          margin: EdgeInsets.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4.0),
+                                          ),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return DialogMessage(
+                                                      agenceNom:
+                                                          widget.agenceNom,
+                                                      nom: widget.nom,
+                                                      agenceId: widget.agenceId,
+                                                      password: widget.password,
+                                                    );
+                                                  });
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(1),
+                                              ),
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/images/seting.png',
+                                                    height: 100.0,
+                                                    width: 100.0,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Text("Paramètres",
+                                                      style: boldTextStyle()),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  // 2.height,
+                                ],
                               ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return DialogRecevoir(
-                                        agenceNom: widget.agenceNom,
-                                        nom: widget.nom,
-                                        agenceId: widget.agenceId,
-                                        password: widget.password,
-                                      );
-                                    });
-                              },
-                              child: Container(
-                                height: 200,
-                                width: 200,
+                              Container(
+                                height: 524,
+                                width: 490,
+                                margin: EdgeInsets.only(
+                                    left: 2, bottom: 2, right: 2),
                                 child: Card(
                                   color: Colors.white,
                                   surfaceTintColor: Colors.transparent,
                                   shadowColor:
                                       Color.fromARGB(255, 243, 220, 204),
-                                  elevation: 4,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(2),
-                                      // border: Border.all(color: Colors.blue, width: 2),
-                                    ),
+                                  elevation: 1,
+                                  margin: EdgeInsets.zero,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
                                     child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        Image.asset(
-                                          'assets/images/recevoir.png',
-                                          height: 100.0,
-                                          width: 100.0,
-                                          fit: BoxFit.cover,
-                                        ),
                                         Text(
-                                          "Recevoir",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              color: AppColors.textColorBlack,
-                                              fontWeight: FontWeight.bold),
-                                        )
+                                          "Activités recentes",
+                                          style: boldTextStyle(size: 20),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        Divider(),
+                                        Container(
+                                          height: 420,
+                                          child: Column(
+                                            children: [
+                                              Center(
+                                                child: Container(
+                                                  height: 420,
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      CupertinoSlidingSegmentedControl<
+                                                          int>(
+                                                        children: {
+                                                          0: Text('Tous'),
+                                                          1: Text('Envoyés'),
+                                                          2: Text('Retirés'),
+                                                        },
+                                                        groupValue:
+                                                            _selectedSegment,
+                                                        onValueChanged:
+                                                            (int? value) {
+                                                          setState(() {
+                                                            _selectedSegment =
+                                                                value;
+                                                          });
+                                                        },
+                                                      ),
+                                                      // SizedBox(height: 20),
+                                                      Flexible(
+                                                        fit: FlexFit.loose,
+                                                        // Utilisez Expanded pour que le contenu prenne tout l'espace restant
+                                                        child:
+                                                            _getContentBasedOnSegment(), // Appelez la méthode ici
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              height: 200,
-                              width: 200,
-                              child: Card(
-                                color: Colors.white,
-                                surfaceTintColor: Colors.transparent,
-                                shadowColor: Color.fromARGB(255, 243, 220, 204),
-                                elevation: 4,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2),
-                                    // border: Border.all(color: Colors.blue, width: 2),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/service1.png',
-                                        height: 100.0,
-                                        width: 100.0,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Text(
-                                        "Services",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: AppColors.textColorBlack,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 200,
-                              width: 200,
-                              child: Card(
-                                color: Colors.white,
-                                surfaceTintColor: Colors.transparent,
-                                shadowColor: Color.fromARGB(255, 243, 220, 204),
-                                elevation: 4,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2),
-                                    // border: Border.all(color: Colors.blue, width: 2),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/compte.png',
-                                        height: 100.0,
-                                        width: 100.0,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Text(
-                                        "Compte agence",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: AppColors.textColorBlack,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 200,
-                              width: 200,
-                              child: Card(
-                                color: Colors.white,
-                                surfaceTintColor: Colors.transparent,
-                                shadowColor: Color.fromARGB(255, 243, 220, 204),
-                                elevation: 4,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2),
-                                    // border: Border.all(color: Colors.blue, width: 2),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Image.asset(
-                                        'assets/images/seting.png',
-                                        height: 100.0,
-                                        width: 100.0,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Text(
-                                        "Parametres",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: AppColors.textColorBlack,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Container(
-                      height: 510,
-                      width: 460.200,
-                      child: Card(
-                        color: Colors.white,
-                        surfaceTintColor: Colors.transparent,
-                        shadowColor: Color.fromARGB(255, 243, 220, 204),
-                        elevation: 4,
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                "Activités recentes",
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    color: AppColors.textColorBlack),
-                                textAlign: TextAlign.center,
-                              ),
-                              Divider(),
-                              Container(
-                                height: 420,
-                                child: Column(
-                                  children: [
-                                    Center(
-                                      child: Container(
-                                        height: 420,
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            CupertinoSlidingSegmentedControl<
-                                                int>(
-                                              children: {
-                                                0: Text('Tous'),
-                                                1: Text('Envoyés'),
-                                                2: Text('Retirés'),
-                                              },
-                                              groupValue: _selectedSegment,
-                                              onValueChanged: (int? value) {
-                                                setState(() {
-                                                  _selectedSegment = value;
-                                                });
-                                              },
-                                            ),
-                                            // SizedBox(height: 20),
-                                            Flexible(
-                                              fit: FlexFit.loose,
-                                              // Utilisez Expanded pour que le contenu prenne tout l'espace restant
-                                              child:
-                                                  _getContentBasedOnSegment(), // Appelez la méthode ici
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            
+                              )
                             ],
                           ),
                         ),
-                      ),
-                    )
-                 
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 8, left: 2, bottom: 2, right: 2),
-                child: FooterAgent(),
-              )
-            ],
-          )),
+                        Container(
+                          margin: EdgeInsets.only(
+                              top: 2, left: 4, bottom: 2, right: 4),
+                          child: FooterAgent(),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              )),
         );
       },
     );
@@ -484,18 +1034,18 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
     switch (_selectedSegment) {
       case 0:
         return Container(
-            child: FutureBuilder<QuerySnapshot>(
-          future: _transfersFuture,
+            child: StreamBuilder<QuerySnapshot>(
+          stream: _transfersStream,
           builder: (context, snapshot) {
             final documents = snapshot.data?.docs ?? [];
 
             final filteredTransfers = documents
                 .where((doc) =>
                     (doc['destinationAgencyName'] == widget.agenceNom ||
-                    doc['statusTransfert'] == 'En cours' ) &&
+                        doc['statusTransfert'] == 'En cours') &&
                     (doc['statusTransfert'] == 'Retirer' ||
-                    doc['origineAgencyName'] == widget.agenceNom))
-                .toList(); 
+                        doc['origineAgencyName'] == widget.agenceNom))
+                .toList();
 
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
@@ -520,14 +1070,12 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                           if (transfer['statusTransfert'] == 'Retirer')
                             Text(
                               'De: ${transfer['origineAgencyName']}',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: primaryTextStyle(weight: FontWeight.bold),
                             )
                           else
                             Text(
                               'À: ${transfer['destinationAgencyName']}',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: primaryTextStyle(weight: FontWeight.bold),
                             ),
                         ],
                       ),
@@ -535,35 +1083,45 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Beneficiaire: ${transfer['beneficiaryName']}'),
-                          Text('Code de retrait: ${transfer['codeRetrait']}'),
-                          Text('Montant: ${transfer['montant']}'),
+                          Text(
+                            'Beneficiaire: ${transfer['beneficiaryName']}',
+                            style: secondaryTextStyle(),
+                          ),
+                          Text(
+                            'Code de retrait: ${transfer['codeRetrait']}',
+                            style: secondaryTextStyle(),
+                          ),
+                          Text(
+                            'Montant: ${transfer['montant']}',
+                            style: secondaryTextStyle(),
+                          ),
                           if (transfer['statusTransfert'] == 'Retirer')
                             Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                    'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                    style: TextStyle(fontSize: 14)),
+                                  'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                  style: secondaryTextStyle(),
+                                ),
                                 Text(
-                                    'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
-                                    style: TextStyle(fontSize: 14)),
-                                    //  Icon(Icons.arrow_right, size: 16.0),
+                                  'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
+                                  style: secondaryTextStyle(),
+                                ),
+                                //  Icon(Icons.arrow_right, size: 16.0),
                               ],
                             )
-                          else 
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            Text(
-                                'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                style: const TextStyle(fontSize: 14)),
-                                // Icon(Icons.arrow_left, size: 16.0),
-                                ]
-                                )
-                          
+                          else
+                            Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                    style: secondaryTextStyle(),
+                                  ),
+                                  // Icon(Icons.arrow_left, size: 16.0),
+                                ])
                         ],
                       ),
                       trailing: Column(
@@ -624,18 +1182,18 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
             );
           },
         ));
-     
+
       case 1:
-       return Container(
-            child: FutureBuilder<QuerySnapshot>(
-          future: _transfersFuture,
+        return Container(
+            child: StreamBuilder<QuerySnapshot>(
+          stream: _transfersStream,
           builder: (context, snapshot) {
             final documents = snapshot.data?.docs ?? [];
 
             final filteredTransfers = documents
                 .where((doc) =>
                     doc['origineAgencyName'] == widget.agenceNom &&
-                    doc['statusTransfert'] == 'En cours' )
+                    doc['statusTransfert'] == 'En cours')
                 .toList();
 
             if (snapshot.hasError) {
@@ -661,24 +1219,24 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                           if (transfer['statusTransfert'] == 'Retirer')
                             Text(
                               'De: ${transfer['origineAgencyName']}',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
+                              style: primaryTextStyle(weight: FontWeight.bold),
                             )
                           else
-                            Text(
-                              'À: ${transfer['destinationAgencyName']}',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
+                            Text('À: ${transfer['destinationAgencyName']}',
+                                style:
+                                    primaryTextStyle(weight: FontWeight.bold)),
                         ],
                       ),
                       subtitle: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Beneficiaire: ${transfer['beneficiaryName']}'),
-                          Text('Code de retrait: ${transfer['codeRetrait']}'),
-                          Text('Montant: ${transfer['montant']}'),
+                          Text('Beneficiaire: ${transfer['beneficiaryName']}',
+                              style: secondaryTextStyle()),
+                          Text('Code de retrait: ${transfer['codeRetrait']}',
+                              style: secondaryTextStyle()),
+                          Text('Montant: ${transfer['montant']}',
+                              style: secondaryTextStyle()),
                           if (transfer['statusTransfert'] == 'Retirer')
                             Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -686,25 +1244,23 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                               children: [
                                 Text(
                                     'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                    style: TextStyle(fontSize: 14)),
+                                    style: secondaryTextStyle()),
                                 Text(
                                     'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
-                                    style: TextStyle(fontSize: 14)),
-                                    //  Icon(Icons.arrow_right, size: 16.0),
+                                    style: secondaryTextStyle()),
+                                //  Icon(Icons.arrow_right, size: 16.0),
                               ],
                             )
-                          else 
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            Text(
-                                'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                style: const TextStyle(fontSize: 14)),
-                                // Icon(Icons.arrow_left, size: 16.0),
-                                ]
-                                )
-                          
+                          else
+                            Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                      style: secondaryTextStyle()),
+                                  // Icon(Icons.arrow_left, size: 16.0),
+                                ])
                         ],
                       ),
                       trailing: Column(
@@ -725,13 +1281,7 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                 'Déjà Retiré',
                                 style: TextStyle(fontSize: 16),
                               ),
-                              onPressed: () async {
-                                // String id = transfer['id'];
-                                // String passeword =
-                                //     transfer['destinationPassewordAgent'];
-                                // retirerFond(context, passeword, id);
-                                // print(passeword + " contre" + id);
-                              },
+                              onPressed: () async {},
                             )
                           else
                             TextButton(
@@ -747,13 +1297,7 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                 'En cours',
                                 style: TextStyle(fontSize: 16),
                               ),
-                              onPressed: () async {
-                                // String id = transfer['id'];
-                                // String passeword =
-                                //     transfer['destinationPassewordAgent'];
-                                // retirerFond(context, passeword, id);
-                                // print(passeword + " contre" + id);
-                              },
+                              onPressed: () async {},
                             )
                         ],
                       ),
@@ -765,18 +1309,18 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
             );
           },
         ));
-     
+
       case 2:
-       return Container(
-            child: FutureBuilder<QuerySnapshot>(
-          future: _transfersFuture,
+        return Container(
+            child: StreamBuilder<QuerySnapshot>(
+          stream: _transfersStream,
           builder: (context, snapshot) {
             final documents = snapshot.data?.docs ?? [];
 
             final filteredTransfers = documents
                 .where((doc) =>
                     doc['destinationAgencyName'] == widget.agenceNom &&
-                    doc['statusTransfert'] == 'Retirer' )
+                    doc['statusTransfert'] == 'Retirer')
                 .toList();
 
             if (snapshot.hasError) {
@@ -800,52 +1344,50 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (transfer['statusTransfert'] == 'Retirer')
-                            Text(
-                              'De: ${transfer['origineAgencyName']}',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            )
+                            Text('De: ${transfer['origineAgencyName']}',
+                                style:
+                                    primaryTextStyle(weight: FontWeight.bold))
                           else
-                            Text(
-                              'À: ${transfer['destinationAgencyName']}',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
+                            Text('À: ${transfer['destinationAgencyName']}',
+                                style:
+                                    primaryTextStyle(weight: FontWeight.bold)),
                         ],
                       ),
                       subtitle: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Beneficiaire: ${transfer['beneficiaryName']}'),
-                          Text('Code de retrait: ${transfer['codeRetrait']}'),
-                          Text('Montant: ${transfer['montant']}'),
+                          Text('Beneficiaire: ${transfer['beneficiaryName']}',
+                              style: secondaryTextStyle()),
+                          Text('Code de retrait: ${transfer['codeRetrait']}',
+                              style: secondaryTextStyle()),
+                          Text('Montant: ${transfer['montant']}',
+                              style: secondaryTextStyle()),
                           if (transfer['statusTransfert'] == 'Retirer')
                             Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                    'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                    style: TextStyle(fontSize: 14)),
+                                  'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                  style: secondaryTextStyle(),
+                                ),
                                 Text(
                                     'Retiré le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['dateRetrait']))} à ${transfer['heureRetrait']}',
-                                    style: TextStyle(fontSize: 14)),
-                                    //  Icon(Icons.arrow_right, size: 16.0),
+                                    style: secondaryTextStyle()),
+                                //  Icon(Icons.arrow_right, size: 16.0),
                               ],
                             )
-                          else 
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                            Text(
-                                'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
-                                style: const TextStyle(fontSize: 14)),
-                                // Icon(Icons.arrow_left, size: 16.0),
-                                ]
-                                )
-                          
+                          else
+                            Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                      'Envoyé le ${DateFormat('dd/MM/yyyy').format(DateTime.parse(transfer['date']))} à ${transfer['heure']}',
+                                      style: secondaryTextStyle()),
+                                  // Icon(Icons.arrow_left, size: 16.0),
+                                ])
                         ],
                       ),
                       trailing: Column(
@@ -866,13 +1408,7 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                 'Déjà Retiré',
                                 style: TextStyle(fontSize: 16),
                               ),
-                              onPressed: () async {
-                                // String id = transfer['id'];
-                                // String passeword =
-                                //     transfer['destinationPassewordAgent'];
-                                // retirerFond(context, passeword, id);
-                                // print(passeword + " contre" + id);
-                              },
+                              onPressed: () async {},
                             )
                           else
                             TextButton(
@@ -906,11 +1442,9 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
             );
           },
         ));
-     
-      
+
       default:
         return Center(child: Text('Aucun segment sélectionné'));
     }
   }
-
 }

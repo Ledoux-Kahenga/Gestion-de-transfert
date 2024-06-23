@@ -306,64 +306,17 @@ class _DialogAgenceState extends State<DialogAgence> {
     );
   }
 }
-// Reste du code...
-
-// Future<bool> ajouterAgence(
-//     String province, String ville, String adresse) async {
-//   try {
-//     final configDocRef =
-//         FirebaseFirestore.instance.collection('config').doc('lastAgenceId');
-//     DocumentSnapshot lastIdDoc = await configDocRef.get();
-
-//     // Vérifier si le document existe et si lastAgenceId est un entier
-//     int lastId = lastIdDoc.exists && lastIdDoc.data() != null
-//         ? (lastIdDoc.data() as Map<String, dynamic>)['lastAgenceId'] ?? 0
-//         : 0;
-
-//     int numericId = lastId + 1;
-
-//     final collectionRef = FirebaseFirestore.instance.collection('agences');
-//     await collectionRef.add({
-//       'numericId': numericId,
-//       'nom': "Baudouin -  $ville",
-//       'province': province,
-//       'ville': ville,
-//       'adresse': adresse,
-//       'estAttribuee': false
-//     });
-
-//     // Mettre à jour la dernière valeur d'ID dans le document de configuration
-//     await configDocRef
-//         .set({'lastAgenceId': numericId}, SetOptions(merge: true));
-
-//     print('Agence ajoutée avec succès');
-//     return true;
-//   } catch (e) {
-//     print('Erreur lors de l\'ajout de l\'agence : $e');
-//     return false;
-//   }
-// }
 
 void _createAgence(String province, String ville, String adresse) async {
   final agenceRef = FirebaseFirestore.instance.collection('agences').doc();
-  final configDocRef =
-      FirebaseFirestore.instance.collection('config').doc('lastAgenceId');
-  DocumentSnapshot lastIdDoc = await configDocRef.get();
-
-  // Vérifier si le document existe et si lastAgenceId est un entier
-  // int lastId = lastIdDoc.exists && lastIdDoc.data() != null
-  //     ? (lastIdDoc.data() as Map<String, dynamic>)['lastAgenceId'] ?? 0
-  //     : 0;
-
-  // int idAgence = lastId + 1;
-  // // final agenceRefe = FirebaseFirestore.instance.collection('agences').doc();
+ 
 
   String documentIdAgence = agenceRef.id;
   DateTime dateCreationAgence = DateTime.now();
 
   agenceRef.set({
     'id': documentIdAgence,
-    'nom': "Baudouin -  $ville",
+    'nom': "Baudouin - $ville",
     'agentId': "Non attribué",
     'agentName': "Non attribué",
     'agentPasseword': "Non definit",
@@ -373,16 +326,11 @@ void _createAgence(String province, String ville, String adresse) async {
     'estAttribuee': false,
     'dateCreationAgence' : dateCreationAgence
   }).then((value) {
-    // Mettre à jour le document de l'agence pour référencer l'agent et passer estAttribuee à true
-    // _agencesRef.doc(_selectedAgenceId).update({
-    //   'estAttribuee': true,
-    //   'agent': agentRef.id,
-    // });
+ 
   }).catchError((error) {
     print('Erreur lors de la création de l\'agence: $error');
   });
-  // Mettre à jour la dernière valeur d'ID dans le document de configuration
-  // await configDocRef.set({'lastAgenceId': idAgence}, SetOptions(merge: true));
+
 }
 
 InputDecoration _getInputDecoration(String hints) {

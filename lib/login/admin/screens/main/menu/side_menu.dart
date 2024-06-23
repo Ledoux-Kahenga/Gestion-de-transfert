@@ -8,6 +8,7 @@ import 'package:agence_transfert/login/admin/screens/main/pages/DashboardCreatio
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nb_utils/nb_utils.dart';
 // import 'package:provider/provider.dart';
 
 class SideMenu extends StatefulWidget {
@@ -45,7 +46,12 @@ class _SideMenuState extends State<SideMenu> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                       Image.asset('assets/images/logo.png', width: 180,),
+                      Text('AGENCE BAUDOUIN', style: boldTextStyle(size: 18)),
+                      4.height,
+                      Text(
+                        'LA COLOMBE',
+                        style: secondaryTextStyle(size: 16),
+                      ),
                     ],
                   ),
                 ),
@@ -56,16 +62,15 @@ class _SideMenuState extends State<SideMenu> {
                     ? AppColors.background
                     : Colors.transparent,
                 child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/agence.svg', width: 16),
+                  leading: SvgPicture.asset('assets/icons/home.svg', width: 16),
                   title: Text(
                     AppTexts.agence,
                     style: TextStyle(
-                      fontSize: 18,
-                      color: _selectedItemIndex == 0
-                          ? AppColors.textColorBlack
-                          : Colors.black.withOpacity(0.6),
-                          fontWeight: FontWeight.bold
-                    ),
+                        fontSize: 18,
+                        color: _selectedItemIndex == 0
+                            ? AppColors.textColorBlack
+                            : Colors.black.withOpacity(0.6),
+                        fontWeight: FontWeight.bold),
                   ),
                   onTap: () {
                     setState(() {
@@ -81,16 +86,18 @@ class _SideMenuState extends State<SideMenu> {
                     ? AppColors.background
                     : const Color.fromARGB(0, 77, 14, 14),
                 child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/user1.svg', width: 20,),
+                  leading: SvgPicture.asset(
+                    'assets/icons/users.svg',
+                    width: 20,
+                  ),
                   title: Text(
                     AppTexts.agent,
                     style: TextStyle(
-                      fontSize: 18,
-                      color: _selectedItemIndex == 1
-                          ? AppColors.textColorBlack
-                          : Colors.black.withOpacity(0.6),
-                          fontWeight: FontWeight.bold
-                    ),
+                        fontSize: 18,
+                        color: _selectedItemIndex == 1
+                            ? AppColors.textColorBlack
+                            : Colors.black.withOpacity(0.6),
+                        fontWeight: FontWeight.bold),
                   ),
                   onTap: () {
                     setState(() {
@@ -101,7 +108,6 @@ class _SideMenuState extends State<SideMenu> {
                   selected: _selectedItemIndex == 1,
                 ),
               ),
-             
             ],
           ),
         ),

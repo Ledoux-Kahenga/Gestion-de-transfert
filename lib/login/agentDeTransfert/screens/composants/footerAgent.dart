@@ -3,14 +3,12 @@ import 'package:agence_transfert/login/admin/screens/main/composants/dialog_agen
 import 'package:flutter/material.dart';
 import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nb_utils/nb_utils.dart';
 
 class FooterAgent extends StatelessWidget {
   // final GlobalKey<DialogAgenceState> dialogKey;
-  
-    
 
   // Header({Key? key}) : super(key: key);
-  
 
 //  Header({required GlobalKey<DialogAgenceState> dialogKey});
 
@@ -18,23 +16,19 @@ class FooterAgent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 70,
+      width: double.infinity,
       color: AppColors.backgroundWhite,
-      child: Row(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "Adresse : 22, De la revolution C/Annex",
-                style: TextStyle(
-                    color: AppColors.textColorBlack,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w100),
-                    textAlign: TextAlign.center,
-              ),
-            ),
+          Text(
+            'Adresse de l\'agence',
+            style: boldTextStyle(),
+          ),
+          8.height,
+          Text(
+            '123 Rue de la Paix, C/ Annexe',
+            style: secondaryTextStyle(),
           ),
         ],
       ),

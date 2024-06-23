@@ -9,6 +9,8 @@ import 'package:agence_transfert/login/admin/screens/main/pages/DashboardCreatio
 import 'package:agence_transfert/configurations/constants/color_constants.dart';
 import 'package:agence_transfert/controllers/MenuAppController.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:nb_utils/nb_utils.dart';
+
 // import 'package:provider/provider.dart';
 
 class SideMenuAgent extends StatefulWidget {
@@ -46,89 +48,72 @@ class _SideMenuAgentState extends State<SideMenuAgent> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                     Image.asset('assets/images/logo.png', width: 180,),
-                    
+                      Image.asset(
+                        'assets/images/logo.png',
+                        height: 136,
+                      ),
                     ],
                   ),
                 ),
               ),
+              // Container(
+              //   // padding: EdgeInsets.only(left: 20),
+              //   color: _selectedItemIndex == 0
+              //       ? AppColors.background
+              //       : Colors.transparent,
+              //   child: Center(
+              //     child: ListTile(
+              //       enabled: false,
+              //       leading:
+              //           SvgPicture.asset('assets/icons/agence.svg', width: 16),
+              //       title: Text(
+              //         AppTexts.menuHome,
+              //         style: TextStyle(
+              //             fontSize: 18,
+              //             color: _selectedItemIndex == 0
+              //                 ? AppColors.textColorBlack
+              //                 : Colors.black.withOpacity(0.6),
+              //             fontWeight: FontWeight.bold),
+              //       ),
+              //       onTap: () {
+              //         setState(() {
+              //           _selectedItemIndex = 0;
+              //           widget.onItemSelected(DashboardAgentScreen(
+              //             agenceNom: '',
+              //             nom: '',
+              //             agenceId: "",
+              //             password: "",
+              //           ));
+              //         });
+              //       },
+              //       selected: _selectedItemIndex == 0,
+              //     ),
+              //   ),
+              // ),
+             
+              50.height,
               Container(
-                // padding: EdgeInsets.only(left: 20),
-                color: _selectedItemIndex == 0
-                    ? AppColors.background
-                    : Colors.transparent,
-                child: ListTile(
-                  leading: SvgPicture.asset('assets/icons/agence.svg', width: 16),
-                  title: Text(
-                    AppTexts.menuHome,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: _selectedItemIndex == 0
-                          ? AppColors.textColorBlack
-                          : Colors.black.withOpacity(0.6),
-                          fontWeight: FontWeight.bold
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      _selectedItemIndex = 0;
-                      widget.onItemSelected(DashboardAgentScreen(agenceNom: '', nom: '', agenceId: "", password: "",));
-                    });
-                  },
-                  selected: _selectedItemIndex == 0,
-                ),
-              ),
-              // Container(
-              //   color: _selectedItemIndex == 1
-              //       ? AppColors.background
-              //       : const Color.fromARGB(0, 77, 14, 14),
-              //   child: ListTile(
-              //     leading: SvgPicture.asset('assets/icons/transaction.svg', width: 18,),
-              //     title: Text(
-              //       AppTexts.menuTransaction,
-              //       style: TextStyle(
-              //         fontSize: 18,
-              //         color: _selectedItemIndex == 1
-              //             ? AppColors.textColorBlack
-              //             : Colors.black.withOpacity(0.6),
-              //             fontWeight: FontWeight.bold
-              //       ),
-              //     ),
-              //     onTap: () {
-              //       setState(() {
-              //         _selectedItemIndex = 1;
-              //         widget.onItemSelected(GestionAgentsPage());
-              //       });
-              //     },
-              //     selected: _selectedItemIndex == 1,
-              //   ),
-              // ),
-              // Container(
-              //   margin: EdgeInsets.only(left: 2),
-              //   color: _selectedItemIndex == 2
-              //       ? AppColors.background
-              //       : const Color.fromARGB(0, 77, 14, 14),
-              //   child: ListTile(
-              //     leading: SvgPicture.asset('assets/icons/logout2.svg', width: 20),
-              //     title: Text(
-              //       AppTexts.menuHistorique,
-              //       style: TextStyle(
-              //         fontSize: 18,
-              //         color: _selectedItemIndex == 2
-              //             ? AppColors.textColorBlack
-              //             : Colors.black.withOpacity(0.6),
-              //             fontWeight: FontWeight.bold
-              //       ),
-              //     ),
-              //     onTap: () {
-              //       setState(() {
-              //         _selectedItemIndex = 2;
-              //         widget.onItemSelected(LoginAdmin());
-              //       });
-              //     },
-              //     selected: _selectedItemIndex == 2,
-              //   ),
-              // ),
+                 
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'COMPTE',
+                        style: boldTextStyle(size: 16),
+                      ),
+                      8.height,
+                      Text(
+                        '123 Rue de la Paix\n75000 Paris, France',
+                        style: secondaryTextStyle(size: 14),
+                      ),
+                      16.height,
+                      Text(
+                        'Tél. : +33 1 23 45 67 89',
+                        style: secondaryTextStyle(size: 14),
+                      ),
+                    ],
+                  )),
             
             ],
           ),

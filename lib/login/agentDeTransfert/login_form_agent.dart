@@ -2,6 +2,7 @@ import 'package:agence_transfert/configurations/constants/app_texts.dart';
 import 'package:agence_transfert/configurations/constants/utils.dart';
 import 'package:agence_transfert/login/admin/screens/main/main_screen.dart';
 import 'package:agence_transfert/login/agentDeTransfert/screens/main_screen_agent.dart';
+import 'package:agence_transfert/login/agentDeTransfert/screens/pages/DashboardAgent.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -79,7 +80,9 @@ class _LoginFormState extends State<LoginForm> {
       final password = userDocument.data()['password']; 
      
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => MainScreenAgent(agenceNom: agenceNom, nom: nom, agenceId: agenceId, password: password)));
+          MaterialPageRoute(builder: (context) => DashboardAgentScreen(agenceNom: agenceNom, nom: nom, agenceId: agenceId, password: password)));
+          // MainScreenAgent(agenceNom: agenceNom, nom: nom, agenceId: agenceId, password: password)));
+    
     } else {
       print('Mot de passe incorrect.');
       showDialog(

@@ -262,7 +262,6 @@ class _DialogTransactionState extends State<DialogTransaction> {
             child: ValueListenableBuilder<DateTime>(
               valueListenable: _selectedDateNotifier,
               builder: (context, selectedDate, child) {
-                print(_selectedDateNotifier);
                 return FutureBuilder<QuerySnapshot>(
                   future: _transfersFuture,
                   builder: (context, snapshot) {
