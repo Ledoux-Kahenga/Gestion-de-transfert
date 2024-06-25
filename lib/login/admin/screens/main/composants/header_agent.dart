@@ -50,12 +50,6 @@ class HeaderAgent extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      SvgPicture.asset(
-                        'assets/icons/add.svg',
-                        width: 18,
-                        height: 18,
-                        color: AppColors.backgroundWhite,
-                      ),
                       const Text(
                         AppTexts.add,
                         style: TextStyle(color: Colors.white),

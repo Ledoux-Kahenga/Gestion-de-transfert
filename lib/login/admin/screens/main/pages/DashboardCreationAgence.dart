@@ -146,12 +146,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             body: Column(
               children: [
                 Container(
-                  margin: EdgeInsets.only(left: 8, top: 8, right: 8),
+                  margin: EdgeInsets.only(left: 2, top: 2, right: 2),
                   child: Header(),
                 ),
                 Expanded(
                   child: Container(
-                    margin: EdgeInsets.all(8),
+                    margin: EdgeInsets.all(2),
                     decoration: BoxDecoration(
                       color: Colors
                           .white, // Remplacez ceci par la couleur que vous souhaitez

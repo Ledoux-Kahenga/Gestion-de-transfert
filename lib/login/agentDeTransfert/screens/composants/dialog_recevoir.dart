@@ -251,12 +251,8 @@ class _DialogRecevoirState extends State<DialogRecevoir> {
       await FirebaseFirestore.instance
           .collection('transfers')
           .doc(transferId)
-          .update({'statusTransfert': "Retirer", 'dateRetrait': date, 'heureRetrait': heure});
+          .update({'statusTransfert': "Retirer", 'dateRetrait': date, 'heureRetrait': heure, 'temps' : temps});
 
-          // await FirebaseFirestore.instance
-          // .collection('transfers')
-          // .doc(transferId)
-          // .update({'dateRetrait': date, 'heureRetrait': heure});
 
            Navigator.pop(context);
            

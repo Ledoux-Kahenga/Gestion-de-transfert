@@ -5,12 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'login/admin/login_admin.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flex_color_scheme/flex_color_scheme.dart';
-// import 'package:agence_transfert/database/firebase_options.dart' as firebase_options;
+// import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 void main() async {
-
-WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: const FirebaseOptions(
       apiKey: "AIzaSyCsJLnoa8ifarcLpikInwUrhTfNSAfx0E8",
@@ -22,6 +20,17 @@ WidgetsFlutterBinding.ensureInitialized();
       measurementId: "G-NTXF224MMZ"
     ),
   );
+
+  // await Firebase.initializeApp(
+  //   options: const FirebaseOptions(
+  //       apiKey: "AIzaSyCTlbdtv3NS1cBbsVpBccQAwzKAKFgRhd0",
+  //       authDomain: "database-1e0b4.firebaseapp.com",
+  //       projectId: "database-1e0b4",
+  //       storageBucket: "database-1e0b4.appspot.com",
+  //       messagingSenderId: "688151408469",
+  //       appId: "1:688151408469:web:2b7a38e18e11faca9bc9dc",
+  //       measurementId: "G-QQKERGQRER"),
+  // );
 
   runApp(
     ChangeNotifierProvider(
@@ -40,10 +49,9 @@ class MyApp extends StatelessWidget {
       title: 'Gestion de transfert de fonds',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'Roboto',
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: AppColors.background
-      ),
+          fontFamily: 'Roboto',
+          primarySwatch: Colors.blue,
+          scaffoldBackgroundColor: AppColors.background),
       home: MultiProvider(
         providers: [
           ChangeNotifierProvider(
@@ -52,14 +60,12 @@ class MyApp extends StatelessWidget {
         ],
         child: LoginAgent(),
       ),
-
-       initialRoute: 'agent',
-  routes: {
-    'agent': (context) => LoginAgent(), // Route par défaut
-    'admin': (context) => LoginAdmin(), // Route pour le module administrateur
-    
-  },
-
+      initialRoute: 'agent',
+      routes: {
+        'agent': (context) => LoginAgent(), // Route par défaut
+        'admin': (context) =>
+            LoginAdmin(), // Route pour le module administrateur
+      },
     );
   }
 }

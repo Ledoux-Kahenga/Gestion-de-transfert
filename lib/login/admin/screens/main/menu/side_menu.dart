@@ -59,7 +59,7 @@ class _SideMenuState extends State<SideMenu> {
               Container(
                 // padding: EdgeInsets.only(left: 20),
                 color: _selectedItemIndex == 0
-                    ? AppColors.background
+                    ? AppColors.itmeSelected
                     : Colors.transparent,
                 child: ListTile(
                   leading: SvgPicture.asset('assets/icons/home.svg', width: 16),
@@ -83,7 +83,7 @@ class _SideMenuState extends State<SideMenu> {
               ),
               Container(
                 color: _selectedItemIndex == 1
-                    ? AppColors.background
+                    ? AppColors.itmeSelected
                     : const Color.fromARGB(0, 77, 14, 14),
                 child: ListTile(
                   leading: SvgPicture.asset(

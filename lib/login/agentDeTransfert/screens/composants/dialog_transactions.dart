@@ -41,8 +41,8 @@ class _DialogTransactionState extends State<DialogTransaction> {
   void initState() {
     super.initState();
     _selectedSegment = 0;
-    // _nomController.text =
-    //     DateFormat('dd/MM/yyyy').format(_selectedDateNotifier.value);
+    _nomController.text =
+        DateFormat('dd/MM/yyyy').format(_selectedDateNotifier.value);
     _filterDate = _selectedDate;
     _fetchFilteredTransactions(); // Charger les transactions initiales
     _agencesRef = FirebaseFirestore.instance.collection('agences');

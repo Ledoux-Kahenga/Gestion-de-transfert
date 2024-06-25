@@ -21,12 +21,12 @@ class GestionAgentsPage extends StatelessWidget {
             body: Column(
               children: [
                 Container(
-                  margin: EdgeInsets.only(left: 8, top: 8, right: 8),
+                  margin: EdgeInsets.only(left: 2, top: 2, right: 2),
                   child: HeaderAgent(),
                 ),
                 Expanded(
                   child: Container(
-                    margin: const EdgeInsets.all(8),
+                    margin: const EdgeInsets.all(2),
                     decoration: const BoxDecoration(
                       color: Colors.white,
                     ),

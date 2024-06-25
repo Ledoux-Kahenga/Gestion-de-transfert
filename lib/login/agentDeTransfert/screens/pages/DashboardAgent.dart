@@ -43,54 +43,35 @@ class DashboardAgentScreen extends StatefulWidget {
 
 class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
   int? _selectedSegment;
-  late Future<QuerySnapshot> _transfersFuture;
+
   Stream<QuerySnapshot>? _transfersStream;
   int _selectedItemIndex = 0;
-
-//  int _Counter = 0;
-  final ValueNotifier<int> _Counter = ValueNotifier<int>(0);
-  async.Timer? _timer;
 
   @override
   void initState() {
     // _transfersFuture = FirebaseFirestore.instance.collection('transfers').get();
     super.initState();
     _selectedSegment = 0;
-     _transfersStream = getData();
-    _startMessageCounterTimer();
+    _transfersStream = getData();
   }
 
   @override
   void dispose() {
-    _stopMessageCounterTimer();
     super.dispose();
   }
 
   Stream<QuerySnapshot> getData() {
-  return FirebaseFirestore.instance.collection('transfers').snapshots();
-}
-
-  void _startMessageCounterTimer() {
-    _timer = async.Timer.periodic(const Duration(seconds: 1), (_) {
-      _messageCounter();
-      getData();
-    });
+    return FirebaseFirestore.instance.collection('transfers').snapshots();
   }
 
-  void _stopMessageCounterTimer() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  void _messageCounter() async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+  Stream<int> getTransferCountStream() {
+    return FirebaseFirestore.instance
         .collection('transfers')
         .where('destinationAgencyName', isEqualTo: widget.agenceNom)
         .where('statusTransfert', isEqualTo: 'En cours')
-        .get();
-
-    int counter = querySnapshot.docs.length;
-    _Counter.value = counter;
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .length); // Convertit chaque snapshot en le nombre de documents
   }
 
   @override
@@ -453,11 +434,9 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                                 TextEditingController(), // Optional
                                             textFieldType: TextFieldType.OTHER,
                                             decoration: InputDecoration(
-                                                labelText: 'Recherche',
-                                                suffixIcon: Icon(Icons.search ),
-                                               ),
-                                            
-                                            
+                                              labelText: 'Recherche',
+                                              suffixIcon: Icon(Icons.search),
+                                            ),
                                           ),
                                         ),
 
@@ -717,40 +696,55 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                                                               .topEnd,
                                                       children: [
                                                         Container(
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  left: 20,
-                                                                  bottom: 20),
-                                                          child: ValueListenableBuilder<
-                                                                  int>(
-                                                              valueListenable:
-                                                                  _Counter,
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    left: 20,
+                                                                    bottom: 20),
+                                                            child:
+                                                                StreamBuilder<
+                                                                    int>(
+                                                              stream:
+                                                                  getTransferCountStream(),
                                                               builder: (context,
-                                                                  value,
-                                                                  child) {
-                                                                if (value > 0) {
-                                                                  return FlutterBadge(
-                                                                    icon: SvgPicture
-                                                                        .asset(
-                                                                      "assets/icons/bell.svg",
-                                                                      height:
-                                                                          24.0,
-                                                                    ),
-                                                                    itemCount:
-                                                                        value,
-                                                                    borderRadius:
-                                                                        100,
-                                                                  );
-                                                                } else {
-                                                                  return SvgPicture
-                                                                      .asset(
-                                                                    "assets/icons/bell.svg",
-                                                                    height:
-                                                                        24.0,
-                                                                  );
+                                                                  snapshot) {
+                                                                if (snapshot
+                                                                    .hasError) {
+                                                                  return Text(
+                                                                      'Error: ${snapshot.error}');
                                                                 }
-                                                              }),
-                                                        ),
+
+                                                                if (snapshot
+                                                                        .connectionState ==
+                                                                    ConnectionState
+                                                                        .waiting) {
+                                                                  return CircularProgressIndicator(); // Ou un autre widget de chargement
+                                                                }
+
+                                                                final count = snapshot
+                                                                        .data ??
+                                                                    0; // Utilisez snapshot.data pour obtenir le compteur
+
+                                                                return count > 0
+                                                                    ? FlutterBadge(
+                                                                        icon: SvgPicture
+                                                                            .asset(
+                                                                          "assets/icons/bell.svg",
+                                                                          height:
+                                                                              24.0,
+                                                                        ),
+                                                                        itemCount:
+                                                                            count,
+                                                                        borderRadius:
+                                                                            100,
+                                                                      )
+                                                                    : SvgPicture
+                                                                        .asset(
+                                                                        "assets/icons/bell.svg",
+                                                                        height:
+                                                                            24.0,
+                                                                      );
+                                                              },
+                                                            )),
                                                         Image.asset(
                                                           'assets/images/recevoir.png',
                                                           height: 100.0,
@@ -1047,6 +1041,9 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                         doc['origineAgencyName'] == widget.agenceNom))
                 .toList();
 
+            DateFormat dateFormat = DateFormat('dd/MM/yyyy à HH:mm');
+            filteredTransfers.sort((a, b) => (b['temps'].toDate()).compareTo(a['temps'].toDate()));
+
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             }
@@ -1196,6 +1193,9 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                     doc['statusTransfert'] == 'En cours')
                 .toList();
 
+                DateFormat dateFormat = DateFormat('dd/MM/yyyy à HH:mm');
+            filteredTransfers.sort((a, b) => (b['temps'].toDate()).compareTo(a['temps'].toDate()));
+
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             }
@@ -1322,6 +1322,9 @@ class _DashboardAgentScreenState extends State<DashboardAgentScreen> {
                     doc['destinationAgencyName'] == widget.agenceNom &&
                     doc['statusTransfert'] == 'Retirer')
                 .toList();
+
+                DateFormat dateFormat = DateFormat('dd/MM/yyyy à HH:mm');
+            filteredTransfers.sort((a, b) => (b['temps'].toDate()).compareTo(a['temps'].toDate()));
 
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');

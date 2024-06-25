@@ -31,97 +31,98 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  // void _doLogin(BuildContext context) async {
-  //   // Récupérer les valeurs des champs de formulaire
-  //   String username = usernameController.text;
-  //   String password = passwordController.text;
+  void _doLogin(BuildContext context) async {
+    // Récupérer les valeurs des champs de formulaire
+    String username = usernameController.text;
+    String password = passwordController.text;
 
-  //   try {
-  //     UserCredential userCredential =
-  //         await widget.auth.signInWithEmailAndPassword(
-  //       email: username,
-  //       password: password,
-  //     );
-
-  //     if (userCredential.user != null) {
-  //       if (isUserAdmin(userCredential.user!)) {
-          // Navigator.of(context).pushReplacement(
-          //   MaterialPageRoute(builder: (context) => MainScreen()),
-  //         );
-  //       } else {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //               content: Text(
-  //                   'Vous n\'êtes pas autorisé en tant qu\'administrateur')),
-  //         );
-  //       }
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Identifiants incorrects')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     String errorMessage =
-  //         'Une erreur s\'est produite lors de l\'authentification';
-  //     if (e is FirebaseAuthException) {
-  //       errorMessage = e.message ?? errorMessage;
-
-  //       // Exceptions spécifiques de Firebase Auth
-  //       switch (e.code) {
-  //         case 'invalid-email':
-  //           errorMessage = 'Adresse e-mail invalide';
-  //           break;
-  //         case 'user-disabled':
-  //           errorMessage = 'Compte utilisateur désactivé';
-  //           break;
-  //         case 'user-not-found':
-  //           errorMessage = 'Utilisateur introuvable';
-  //           break;
-  //         case 'wrong-password':
-  //           errorMessage = 'Mot de passe incorrect';
-  //           break;
-  //         // Ajoutez d'autres exceptions Firebase Auth ici selon vos besoins
-  //         default:
-  //           // Utilisez le message d'erreur par défaut si le code d'erreur n'est pas géré
-  //           errorMessage = e.message ?? errorMessage;
-  //           break;
-  //       }
-  //     }
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text(errorMessage)),
-  //     );
-  //   }
-  // }
-
-  // bool isUserAdmin(User user) {
-
-  //   String adminUID ='nPk5n7AQM1UGWdtgIsuVfiwit3J2'; 
-  //       // E-mail : admin@gmail.com
-  //       // password : 12346
-
-  //   return user.uid == adminUID;
-  // }
-
-  void _doLogin(BuildContext context) {
-    if (isUserAdmin(null)) {
-      // Simulons un utilisateur qui serait considéré comme un administrateur
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MainScreen()),
+    try {
+      UserCredential userCredential =
+          await widget.auth.signInWithEmailAndPassword(
+        email: username,
+        password: password,
       );
-    } else {
+
+      if (userCredential.user != null) {
+        if (isUserAdmin(userCredential.user!)) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MainScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Vous n\'êtes pas autorisé en tant qu\'administrateur')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Identifiants incorrects')),
+        );
+      }
+    } catch (e) {
+      String errorMessage =
+          'Une erreur s\'est produite lors de l\'authentification';
+      if (e is FirebaseAuthException) {
+        errorMessage = e.message ?? errorMessage;
+
+        // Exceptions spécifiques de Firebase Auth
+        switch (e.code) {
+          case 'invalid-email':
+            errorMessage = 'Adresse e-mail invalide';
+            break;
+          case 'user-disabled':
+            errorMessage = 'Compte utilisateur désactivé';
+            break;
+          case 'user-not-found':
+            errorMessage = 'Utilisateur introuvable';
+            break;
+          case 'wrong-password':
+            errorMessage = 'Mot de passe incorrect';
+            break;
+          // Ajoutez d'autres exceptions Firebase Auth ici selon vos besoins
+          default:
+            // Utilisez le message d'erreur par défaut si le code d'erreur n'est pas géré
+            errorMessage = e.message ?? errorMessage;
+            break;
+        }
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text('Vous n\'êtes pas autorisé en tant qu\'administrateur')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }
 
-  bool isUserAdmin(User? user) {
-    // Cette méthode peut être modifiée pour toujours retourner vrai ou faux selon votre besoin de simulation
-    // Par exemple, pour simuler un utilisateur administrateur, vous pouvez simplement retourner vrai :
-    return true; // Ou false, selon le cas de test que vous souhaitez simuler
+  bool isUserAdmin(User user) {
+
+    String adminUID ='2mHh02hYsQeY3qYGp0ryFCpfvWx2'; 
+        // E-mail : admin@gmail.com
+        // password : 000000
+
+    return user.uid == adminUID;
+
   }
+
+  // void _doLogin(BuildContext context) {
+  //   if (isUserAdmin(null)) {
+  //     // Simulons un utilisateur qui serait considéré comme un administrateur
+  //     Navigator.of(context).pushReplacement(
+  //       MaterialPageRoute(builder: (context) => MainScreen()),
+  //     );
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //           content:
+  //               Text('Vous n\'êtes pas autorisé en tant qu\'administrateur')),
+  //     );
+  //   }
+  // }
+
+  // bool isUserAdmin(User? user) {
+  //   // Cette méthode peut être modifiée pour toujours retourner vrai ou faux selon votre besoin de simulation
+  //   // Par exemple, pour simuler un utilisateur administrateur, vous pouvez simplement retourner vrai :
+  //   return true; // Ou false, selon le cas de test que vous souhaitez simuler
+  // }
 
   Widget build(BuildContext context) {
     return Form(
